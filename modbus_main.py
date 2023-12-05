@@ -5,7 +5,7 @@ from tkinter import ttk
 import crcmod.predefined
 from ttkthemes import ThemedTk
 from connection_parameters import *
- 
+
 #Тестовая функция формирования запросов
 def read_holding_test():
     if not is_testing:
