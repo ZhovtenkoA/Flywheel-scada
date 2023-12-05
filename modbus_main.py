@@ -167,12 +167,12 @@ def write_holding():
  
 
 #Чтение регистров с выводом на основной экран
-def read_holding_30001_30011():
+def read_holding_30001_30014():
     if not is_reading:
         return
  
     register_address = 30001
-    numbers_to_read = 11
+    numbers_to_read = 14
  
     try:
         ser = serial.Serial(
@@ -228,7 +228,10 @@ def read_holding_30001_30011():
                     output_30008,
                     output_30009,
                     output_30010,
-                    output_30011
+                    output_30011, 
+                    output_30012,
+                    output_30013,
+                    output_30014
                 ]
                 for i in range(numbers_to_read):
                     output_fields[i].delete(1.0, END)
@@ -249,7 +252,7 @@ def read_holding_30001_30011():
         output.insert(END, error_message + "\n")
  
     if is_reading:
-        root.after(500, read_holding_30001_30011)
+        root.after(500, read_holding_30001_30014)
  
 
 #Функции управления PWM (разгон, торможение, стоп)
@@ -676,7 +679,7 @@ def start_reading():
     start_button.config(
         background="green", font=("Arial", 10, "bold"), foreground="white"
     )
-    read_holding_30001_30011()
+    read_holding_30001_30014()
  
 def stop_reading():
     global is_reading
@@ -725,9 +728,7 @@ def resize_window(event):
         acceleration_button.place(x=340, y=window_height - 130, width=100)
         slowdown_button.place(x=450, y=window_height - 130, width=100)
         shutdown_button.place(x=560, y=window_height - 130, width=100)
-        #trh_plus_button.place(x=230, y=window_height, width=40, height=25)
-        #trh_minus_button.place(x=280, y=window_height, width=40, height = 25)
-        #write_trh_button.place(x=520, y=window_height - 360, width=100, height=25)
+
     else:
         clear_button.place(x=10, y=window_height - 70, width=100)
         start_button.place(x=120, y=window_height - 70, width=100)
@@ -740,9 +741,7 @@ def resize_window(event):
         acceleration_button.place(x=340, y=window_height - 70, width=100)
         slowdown_button.place(x=450, y=window_height - 70, width=100)
         shutdown_button.place(x=560, y=window_height - 70, width=100)
-        #trh_plus_button.place(x=230, y=window_height - 360, width=40, height=25)
-        #trh_minus_button.place(x=280, y=window_height - 360, width=40, height=25)
-        #write_trh_button.place(x=520, y=window_height - 360, width=100, height=25)
+
  
     scrollbar.place(x=window_width - 20, y=70, height=window_height - 200)
  
@@ -797,13 +796,22 @@ output_30008 = Text(tab4)
 output_30008.place(x=350, y=130, width=50, height=25)
  
 output_30009 = Text(tab4)
-output_30009.place(x=150, y=280, width=50, height=25)
+output_30009.place(x=150, y=400, width=50, height=25)
  
 output_30010 = Text(tab4)
 output_30010.place(x=150, y=200, width=50, height=25)
  
 output_30011 = Text(tab4)
 output_30011.place(x=150, y=240, width=50, height=25)
+
+output_30012 = Text(tab4)
+output_30012.place(x=150, y=280, width=50, height=25)
+
+output_30013 = Text(tab4)
+output_30013.place(x=150, y=320, width=50, height=25)
+
+output_30014 = Text(tab4)
+output_30014.place(x=150, y=360, width=50, height=25)
  
  
 output_30005_percent = Text(tab4)
@@ -1099,7 +1107,7 @@ value_30009_label = Label(
     foreground="white",
     background="#424242",
 )
-value_30009_label.place(x=10, y=280)
+value_30009_label.place(x=10, y=400)
 value_30010_label = Label(
     tab4,
     text="Frequency",
@@ -1116,6 +1124,33 @@ value_30011_label = Label(
     background="#424242",
 )
 value_30011_label.place(x=10, y=240)
+
+value_30012_label = Label(
+    tab4,
+    text="ADDR",
+    font=("Arial", 10, "bold"),
+    foreground="white",
+    background="#424242",
+)
+value_30012_label.place(x=10, y=280)
+
+value_30013_label = Label(
+    tab4,
+    text="VDC",
+    font=("Arial", 10, "bold"),
+    foreground="white",
+    background="#424242",
+)
+value_30013_label.place(x=10, y=320)
+
+value_30014_label = Label(
+    tab4,
+    text="ADC",
+    font=("Arial", 10, "bold"),
+    foreground="white",
+    background="#424242",
+)
+value_30014_label.place(x=10, y=360)
  
 root.bind("<Configure>", resize_window)
  
