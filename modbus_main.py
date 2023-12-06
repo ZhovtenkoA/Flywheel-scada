@@ -729,9 +729,9 @@ def write_moment_of_inertia():
 def update_indicator_color(value):
     register_value = value
     if register_value >= 200 and register_value <=500: 
-        indicator.config( bg="green")
+        indicator.itemconfig(circle, fill="green")
     else: 
-        indicator.config( bg="red")
+        indicator.itemconfig(circle, fill="red")
 
 
 def resize_window(event):
@@ -1205,9 +1205,14 @@ accumulated_kinetic_energy_output_label = Label(
 )
 accumulated_kinetic_energy_output_label.place(x=10, y=440) 
 
-indicator = Canvas(root, width=10, height=10, borderwidth=0, highlightthickness=0)
+indicator = Canvas(root, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
 indicator.pack()
-indicator.place(x=120, y=270)
+indicator.place(x=120, y=268)
+
+center_x = 10
+center_y = 10
+radius = 8
+circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="grey")
 
 
 root.bind("<Configure>", resize_window)
