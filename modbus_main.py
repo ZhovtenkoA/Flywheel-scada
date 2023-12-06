@@ -173,7 +173,6 @@ def read_holding_30001_30014():
  
     register_address = 30001
     numbers_to_read = 14
-    print(moment_of_inertia)
     try:
         ser = serial.Serial(
             port=port,
@@ -221,6 +220,8 @@ def read_holding_30001_30014():
                         kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
                         accumulated_kinetic_energy_output.delete(1.0, END)
                         accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
+                    if i ==  11:
+                        update_indicator_color(value)
                 ser.close()
                 output_fields = [
                     output_30001,
@@ -1162,7 +1163,6 @@ value_30011_label = Label(
     background="#424242",
 )
 value_30011_label.place(x=10, y=240)
-
 value_30012_label = Label(
     tab4,
     text="ADDR",
@@ -1171,7 +1171,6 @@ value_30012_label = Label(
     background="#424242",
 )
 value_30012_label.place(x=10, y=280)
-
 value_30013_label = Label(
     tab4,
     text="VDC",
@@ -1180,7 +1179,6 @@ value_30013_label = Label(
     background="#424242",
 )
 value_30013_label.place(x=10, y=320)
-
 value_30014_label = Label(
     tab4,
     text="ADC",
@@ -1189,7 +1187,6 @@ value_30014_label = Label(
     background="#424242",
 )
 value_30014_label.place(x=10, y=360)
- 
 accumulated_kinetic_energy_output_label = Label(
     tab4,
     text="Energy",
@@ -1198,6 +1195,26 @@ accumulated_kinetic_energy_output_label = Label(
     background="#424242",
 )
 accumulated_kinetic_energy_output_label.place(x=10, y=440) 
+
+def update_indicator_color(value):
+    register_value = value()
+
+    if register_value >= 200 and register_value <=500: 
+        indicator.config(circle, bg="green")
+    else: 
+        indicator.config(circle, bg="red")
+
+indicator = Canvas(root, width=10, height=10, borderwidth=0, highlightthickness=0)
+indicator.pack()
+indicator.place(x=120, y=270)
+
+center_x = 50
+center_y = 50
+radius = 40
+circle = indicator.create_oval(
+    center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="grey"
+)
+
 root.bind("<Configure>", resize_window)
  
 root.mainloop()
