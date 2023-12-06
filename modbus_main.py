@@ -173,7 +173,8 @@ def read_holding_30001_30014():
  
     register_address = 30001
     numbers_to_read = 14
- 
+    moment_of_inertia = int(inertia_value_entry.get())
+
     try:
         ser = serial.Serial(
             port=port,
@@ -216,6 +217,10 @@ def read_holding_30001_30014():
                         percentage = convert_to_percentage(value)
                         output_percent.delete(1.0, END)
                         output_percent.insert(END, f"{percentage}%")
+                    if i == 9 and moment_of_inertia:
+                        kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
+                        accumulated_kinetic_energy_output.delete(1.0, END)
+                        accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
                 ser.close()
                 output_fields = [
                     output_30001,
@@ -708,7 +713,11 @@ def clear_output():
 #Преобразование в процент 
 def convert_to_percentage(value):
     return (value * 100) / 2000
- 
+
+#Расчет накопленной кинетической энергии
+def accumulated_kinetic_energy(moment_of_innertion, rpm):
+    kinetic_energy = (moment_of_innertion **2)/2 * rpm
+    return kinetic_energy
  
 def resize_window(event):
     window_width = root.winfo_width()
@@ -825,7 +834,10 @@ output_30007_percent.place(x=450, y=90, width=50, height=25)
  
 output_30008_percent = Text(tab4)
 output_30008_percent.place(x=450, y=130, width=50, height=25)
- 
+
+accumulated_kinetic_energy_output = Text(tab4)
+accumulated_kinetic_energy_output.place(x=150, y=440, width=50, height=25)
+
 window_width = 800
 window_height = 600
 screen_width = root.winfo_screenwidth()
@@ -972,6 +984,27 @@ write_trh_button = Button(
 )
 write_trh_button.pack()
 write_trh_button.place(x=520, y=window_height - 360, width=100, height=25)
+
+#Кнока расчета накопленной кинетической єнергии 
+accumulated_kinetic_energy_label = Label(
+    tab4,
+    text="Момент иннерции",
+    font=("Arial", 10, "bold"),
+    foreground="white",
+    background="#424242",
+)
+accumulated_kinetic_energy_label.place(x=300, y=440)
+inertia_value_entry = Entry(tab4)
+inertia_value_entry.place(x=430, y=440, width=60, height=25)
+# write_inertia_value_button = Button(
+#     tab4,
+#     text="Отправить",
+#     command=trh_write,
+#     font=("Arial", 10, "bold"),
+#     foreground="black",
+# )
+# write_inertia_value_button.pack()
+# write_inertia_value_button.place(x=520, y=window_height - 160, width=100, height=25)
  
  
  
@@ -1152,6 +1185,14 @@ value_30014_label = Label(
 )
 value_30014_label.place(x=10, y=360)
  
+accumulated_kinetic_energy_output_label = Label(
+    tab4,
+    text="Energy",
+    font=("Arial", 10, "bold"),
+    foreground="white",
+    background="#424242",
+)
+accumulated_kinetic_energy_output_label.place(x=10, y=440) 
 root.bind("<Configure>", resize_window)
  
 root.mainloop()
