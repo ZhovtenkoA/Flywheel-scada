@@ -220,7 +220,7 @@ def read_holding_30001_30014():
                         kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
                         accumulated_kinetic_energy_output.delete(1.0, END)
                         accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
-                    if i ==  11:
+                    if i ==  10:
                         update_indicator_color(value)
                 ser.close()
                 output_fields = [
