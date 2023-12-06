@@ -173,7 +173,7 @@ def read_holding_30001_30014():
  
     register_address = 30001
     numbers_to_read = 14
-    moment_of_inertia = int(inertia_value_entry.get())
+    # moment_of_inertia = int(inertia_value_entry.get())
 
     try:
         ser = serial.Serial(
@@ -217,7 +217,9 @@ def read_holding_30001_30014():
                         percentage = convert_to_percentage(value)
                         output_percent.delete(1.0, END)
                         output_percent.insert(END, f"{percentage}%")
+                    
                     if i == 9 and moment_of_inertia:
+                        moment_of_inertia = int(inertia_value_entry.get())
                         kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
                         accumulated_kinetic_energy_output.delete(1.0, END)
                         accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
