@@ -729,9 +729,9 @@ def write_moment_of_inertia():
 def update_indicator_color(value):
     register_value = value
     if register_value >= 200 and register_value <=500: 
-        indicator.config(circle, bg="green")
+        indicator.config( bg="green")
     else: 
-        indicator.config(circle, bg="red")
+        indicator.config( bg="red")
 
 
 def resize_window(event):
@@ -1209,12 +1209,6 @@ indicator = Canvas(root, width=10, height=10, borderwidth=0, highlightthickness=
 indicator.pack()
 indicator.place(x=120, y=270)
 
-center_x = 50
-center_y = 50
-radius = 40
-circle = indicator.create_oval(
-    center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="grey"
-)
 
 root.bind("<Configure>", resize_window)
  
