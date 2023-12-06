@@ -725,6 +725,15 @@ def write_moment_of_inertia():
     moment_of_inertia = int(inertia_value_entry.get())
     return moment_of_inertia
  
+#Изменение цвета индикатора TRH
+def update_indicator_color(value):
+    register_value = value
+    if register_value >= 200 and register_value <=500: 
+        indicator.config(circle, bg="green")
+    else: 
+        indicator.config(circle, bg="red")
+
+
 def resize_window(event):
     window_width = root.winfo_width()
     window_height = root.winfo_height()
@@ -1195,14 +1204,6 @@ accumulated_kinetic_energy_output_label = Label(
     background="#424242",
 )
 accumulated_kinetic_energy_output_label.place(x=10, y=440) 
-
-def update_indicator_color(value):
-    register_value = value()
-
-    if register_value >= 200 and register_value <=500: 
-        indicator.config(circle, bg="green")
-    else: 
-        indicator.config(circle, bg="red")
 
 indicator = Canvas(root, width=10, height=10, borderwidth=0, highlightthickness=0)
 indicator.pack()
