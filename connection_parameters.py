@@ -11,3 +11,6 @@ timeout = 5
 is_reading = False
 is_testing = False
 is_logging = False
+
+
+moment_of_inertia = None

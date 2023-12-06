@@ -173,8 +173,7 @@ def read_holding_30001_30014():
  
     register_address = 30001
     numbers_to_read = 14
-    # moment_of_inertia = int(inertia_value_entry.get())
-
+    print(moment_of_inertia)
     try:
         ser = serial.Serial(
             port=port,
@@ -219,7 +218,6 @@ def read_holding_30001_30014():
                         output_percent.insert(END, f"{percentage}%")
                     
                     if i == 9 and moment_of_inertia:
-                        moment_of_inertia = int(inertia_value_entry.get())
                         kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
                         accumulated_kinetic_energy_output.delete(1.0, END)
                         accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
@@ -720,6 +718,11 @@ def convert_to_percentage(value):
 def accumulated_kinetic_energy(moment_of_innertion, rpm):
     kinetic_energy = (moment_of_innertion **2)/2 * rpm
     return kinetic_energy
+
+def write_moment_of_inertia():
+    global moment_of_inertia
+    moment_of_inertia = int(inertia_value_entry.get())
+    return moment_of_inertia
  
 def resize_window(event):
     window_width = root.winfo_width()
@@ -998,15 +1001,15 @@ accumulated_kinetic_energy_label = Label(
 accumulated_kinetic_energy_label.place(x=300, y=440)
 inertia_value_entry = Entry(tab4)
 inertia_value_entry.place(x=430, y=440, width=60, height=25)
-# write_inertia_value_button = Button(
-#     tab4,
-#     text="Отправить",
-#     command=trh_write,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# write_inertia_value_button.pack()
-# write_inertia_value_button.place(x=520, y=window_height - 160, width=100, height=25)
+write_inertia_value_button = Button(
+    tab4,
+    text="Отправить",
+    command=write_moment_of_inertia,
+    font=("Arial", 10, "bold"),
+    foreground="black",
+)
+write_inertia_value_button.pack()
+write_inertia_value_button.place(x=520, y=window_height - 160, width=100, height=25)
  
  
  
