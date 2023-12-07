@@ -1213,7 +1213,7 @@ accumulated_kinetic_energy_output_label.place(x=10, y=440)
 
 indicator = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
 indicator.pack()
-indicator.place(x=120, y=268)
+indicator.place(x=120, y=242)
 
 center_x = 10
 center_y = 10
