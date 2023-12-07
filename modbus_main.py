@@ -292,7 +292,10 @@ def acceleration():
             data_index = 3
             value = (response[data_index] << 8) + response[data_index + 1]
             register_to_write = 1
-            new_value = value + 5
+            if value < 1996:
+                new_value = value + 5
+            elif value >= 1996:
+                new_value = 2000
             try:
                 ser = serial.Serial(
                     port=port,
@@ -370,7 +373,10 @@ def slowdown():
             data_index = 3
             value = (response[data_index] << 8) + response[data_index + 1]
             register_to_write = 1
-            new_value = value - 5
+            if value <= 4:
+                new_value = 0
+            elif value >= 5:
+                new_value = value - 5
             try:
                 ser = serial.Serial(
                     port=port,
