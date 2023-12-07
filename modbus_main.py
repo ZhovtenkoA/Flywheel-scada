@@ -294,7 +294,7 @@ def acceleration():
             register_to_write = 1
             if value < 1996:
                 new_value = value + 5
-            elif value >= 1996:
+            if value >= 1995:
                 new_value = 2000
             try:
                 ser = serial.Serial(
@@ -375,7 +375,7 @@ def slowdown():
             register_to_write = 1
             if value <= 4:
                 new_value = 0
-            elif value >= 5:
+            if value >= 5:
                 new_value = value - 5
             try:
                 ser = serial.Serial(
