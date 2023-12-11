@@ -261,7 +261,7 @@ def read_holding_30001_30014():
         output.insert(END, error_message + "\n")
  
     if is_reading:
-        root.after(500, read_holding_30001_30014)
+        root.after(1000, read_holding_30001_30014)
  
 
 #Функции управления PWM (разгон, торможение, стоп)
