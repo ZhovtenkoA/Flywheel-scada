@@ -753,90 +753,101 @@ def update_indicator_color(value):
 
 #Расчет Accumulated Energy, кВт*ч
 def accumulated_energy_kW_h(VDC, ADC, t2, t1):
-    kW_h = VDC * ADC * (t2 - t1) / 3600
+    time_diff = datetime.combine(datetime.date.today(), t2) - datetime.combine(datetime.date.today(), t1)
+    seconds = time_diff.total_seconds()
+    kW_h = VDC * ADC * seconds/ 3600
     return kW_h
 
 
-# def make_kW_h():
-#     register_address = 30015
-#     numbers_to_read = 2
- 
-#     try:
-#         ser = serial.Serial(
-#             port=port,
-#             baudrate=baudrate,
-#             parity=parity,
-#             stopbits=stopbits,
-#             bytesize=bytesize,
-#         )
-#         current_time = datetime.now().strftime("%H:%M:%S")
-#         try:
-#             request = bytearray(
-#                 [
-#                     slave_id,
-#                     0x4,
-#                     (register_address >> 8) & 0xFF,
-#                     register_address & 0xFF,
-#                     0x00,
-#                     numbers_to_read,
-#                 ]
-#             )
-#             ser.write(request)
-#             response = ser.read(5 + numbers_to_read * 2)
-#             print(response)
-#             data_index = 3
-#             value = (response[data_index] << 8) + response[data_index + 1]
-#             register_to_write = 1
-#             if value >= 1995:
-#                 new_value = 2000
-#             else:
-#                 new_value = value + 5
-#             try:
-#                 ser = serial.Serial(
-#                     port=port,
-#                     baudrate=baudrate,
-#                     parity=parity,
-#                     stopbits=stopbits,
-#                     bytesize=bytesize,
-#                 )
-#                 current_time = datetime.now().strftime("%H:%M:%S")
-#                 try:
-#                     request = bytearray(
-#                         [
-#                             slave_id,
-#                             0x10,
-#                             (register_to_write >> 8) & 0xFF,
-#                             register_to_write & 0xFF,
-#                             0x00,
-#                             0x01,
-#                             0x02,
-#                             (new_value >> 8) & 0xFF,
-#                             new_value & 0xFF,
-#                         ]
-#                     )
-#                     crc16 = crcmod.predefined.mkCrcFun("modbus")
-#                     crc_value = crc16(request)
-#                     request += crc_value.to_bytes(2, byteorder="big")
-#                     ser.write(request)
-#                     ser.close()
-#                 except Exception as e:
-#                     error_message = (
-#                         f"[{current_time}] Error writing to Holding Register: {e}"
-#                     )
-#                     print(error_message)
-#                     output.insert(END, error_message + "\n")
-#             except Exception as e:
-#                 error_message = f"Error reading Modbus RTU: {e}"
-#                 print(error_message)
-#                 output.insert(END, error_message + "\n")
-#         except Exception as e:
-#             error_message = f"[{current_time}]Error reading input Register: {e}"
-#             print(error_message)
-#             output.insert(END, error_message + "\n")
-#     except Exception as e:
-#         error_message = f"Error reading modbus rtu: {e}"
-#         print(error_message)
-#         output.insert(END, error_message + "\n")
+def make_kW_h():
+    register_address = 30013
+    numbers_to_read = 4
+    try:
+        ser = serial.Serial(
+            port=port,
+            baudrate=baudrate,
+            parity=parity,
+            stopbits=stopbits,
+            bytesize=bytesize,
+        )
+        
+        current_time = datetime.now()
+        current_hour = current_time.hour
+        current_minute = current_time.minute
+        current_second = current_time.second
+        combined_value = (current_hour << 8) + current_minute
+        try:
+            request = bytearray(
+                [
+                    slave_id,
+                    0x10,
+                    0x00, 0x03,  #adress
+                    0x00, 0x01,  
+                    0x02,  
+                    (combined_value >> 8) & 0xFF, combined_value & 0xFF,  
+                ]
+            )
+            crc16 = crcmod.predefined.mkCrcFun("modbus")
+            crc_value = crc16(request)
+            request += crc_value.to_bytes(2, byteorder="big")
+            ser.write(request)
+            
+            request = bytearray(
+                [
+                    slave_id,
+                    0x10,
+                    0x00, 0x04,  #adress
+                    0x00, 0x01,  
+                    0x02,  
+                    (current_second >> 8) & 0xFF, current_second & 0xFF,  
+                ]
+            )
+            crc_value = crc16(request)
+            request += crc_value.to_bytes(2, byteorder="big")
+            ser.write(request)
+            
+            ser.close()
+            try:
+                request = bytearray(
+                    [
+                        slave_id,
+                        0x4,
+                        (register_address >> 8) & 0xFF,
+                        register_address & 0xFF,
+                        0x00,
+                        numbers_to_read,
+                    ]
+                )
+                ser.write(request)
+                response = ser.read(5 + numbers_to_read * 2)
+                data_index = 3
+                vdc = (response[data_index] << 8) + response[data_index + 1]
+                adc = (response[data_index + 2] << 8) + response[data_index + 3]
+                old_hour_minute = (response[data_index+4] << 8) + response[data_index + 5]
+                old_hour = old_hour_minute // 100 
+                old_minute = old_hour_minute % 100
+                old_second = (response[data_index + 6] << 8) + response[data_index + 7]
+                t1 = datetime.time(old_hour, old_minute, old_second)
+                time.sleep(5)
+                t2 = datetime.now()
+                try:
+                    kW_h = accumulated_energy_kW_h(VDC=vdc, ADC=adc, t2=t2, t1=t1)
+                    kW_power_output.delete(1.0, END)
+                    kW_power_output.insert(END, f"{kW_h}kW*h")
+                except Exception as e:
+                    print("missing argument")
+            except Exception as e:
+                error_message = f"[{current_time}] Error writing to Holding Register: {e}"
+                print(error_message)
+                output.insert(END, error_message + "\n")
+        except Exception as e:
+            error_message = f"[{current_time}] Error reading input Register: {e}"
+            print(error_message)
+            output.insert(END, error_message + "\n")
+    except Exception as e:
+        error_message = f"Error reading Modbus RTU: {e}"
+        print(error_message)
+        output.insert(END, error_message + "\n")
 
 def resize_window(event):
     window_width = root.winfo_width()
@@ -900,46 +911,46 @@ output_test = Text(tab3)
 output_test.pack(fill=BOTH, expand=True)
  
 output_30001 = Text(tab4)
-output_30001.place(x=150, y=10, width=50, height=25)
+output_30001.place(x=150, y=10, width=60, height=25)
  
 output_30002 = Text(tab4)
-output_30002.place(x=150, y=50, width=50, height=25)
+output_30002.place(x=150, y=50, width=60, height=25)
  
 output_30003 = Text(tab4)
-output_30003.place(x=150, y=90, width=50, height=25)
+output_30003.place(x=150, y=90, width=60, height=25)
  
 output_30004 = Text(tab4)
-output_30004.place(x=150, y=130, width=50, height=25)
+output_30004.place(x=150, y=130, width=60, height=25)
  
 output_30005 = Text(tab4)
-output_30005.place(x=350, y=10, width=50, height=25)
+output_30005.place(x=350, y=10, width=60, height=25)
  
 output_30006 = Text(tab4)
-output_30006.place(x=350, y=50, width=50, height=25)
+output_30006.place(x=350, y=50, width=60, height=25)
  
 output_30007 = Text(tab4)
-output_30007.place(x=350, y=90, width=50, height=25)
+output_30007.place(x=350, y=90, width=60, height=25)
  
 output_30008 = Text(tab4)
-output_30008.place(x=350, y=130, width=50, height=25)
+output_30008.place(x=350, y=130, width=60, height=25)
  
 output_30009 = Text(tab4)
-output_30009.place(x=150, y=400, width=50, height=25)
+output_30009.place(x=150, y=400, width=60, height=25)
  
 output_30010 = Text(tab4)
-output_30010.place(x=150, y=200, width=50, height=25)
+output_30010.place(x=150, y=200, width=60, height=25)
  
 output_30011 = Text(tab4)
-output_30011.place(x=150, y=240, width=50, height=25)
+output_30011.place(x=150, y=240, width=60, height=25)
 
 output_30012 = Text(tab4)
-output_30012.place(x=150, y=280, width=50, height=25)
+output_30012.place(x=150, y=280, width=60, height=25)
 
 output_30013 = Text(tab4)
-output_30013.place(x=150, y=320, width=50, height=25)
+output_30013.place(x=150, y=320, width=60, height=25)
 
 output_30014 = Text(tab4)
-output_30014.place(x=150, y=360, width=50, height=25)
+output_30014.place(x=150, y=360, width=60, height=25)
  
  
 output_30005_percent = Text(tab4)
@@ -955,10 +966,10 @@ output_30008_percent = Text(tab4)
 output_30008_percent.place(x=450, y=130, width=50, height=25)
 
 accumulated_kinetic_energy_output = Text(tab4)
-accumulated_kinetic_energy_output.place(x=150, y=440, width=50, height=25)
+accumulated_kinetic_energy_output.place(x=150, y=440, width=60, height=25)
 
-power_output = Text(tab4)
-power_output.place(x=350, y=320, width=50, height=25)
+kW_power_output = Text(tab4)
+kW_power_output.place(x=350, y=320, width=60, height=25)
 
 
 window_width = 1024
@@ -1129,7 +1140,17 @@ write_inertia_value_button = Button(
 write_inertia_value_button.pack()
 write_inertia_value_button.place(x=520, y=440, width=100, height=25)
  
- 
+
+#Кнока расчета киловатт*ч
+kW_power_button = Button(
+    tab4,
+    text="Рассчет kW*h",
+    command=make_kW_h,
+    font=("Arial", 10, "bold"),
+    foreground="black",
+)
+kW_power_button.pack()
+kW_power_button.place(x=420, y=320, width=100, height=25)
  
 clear_button = Button(
     tab1,
