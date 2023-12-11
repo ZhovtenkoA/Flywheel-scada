@@ -731,7 +731,7 @@ def accumulated_kinetic_energy(moment_of_innertion, rpm):
 
 def write_moment_of_inertia():
     global moment_of_inertia
-    moment_of_inertia = int(inertia_value_entry.get())
+    moment_of_inertia = float(inertia_value_entry.get())
     return moment_of_inertia
  
 
