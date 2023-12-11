@@ -726,7 +726,7 @@ def convert_to_percentage(value):
 
 #Расчет накопленной кинетической энергии
 def accumulated_kinetic_energy(moment_of_innertion, rpm):
-    kinetic_energy = (moment_of_innertion **2)/2 * rpm
+    kinetic_energy = (moment_of_innertion **2)/2 * (rpm *3,14)/30
     return kinetic_energy
 
 def write_moment_of_inertia():
@@ -737,11 +737,9 @@ def write_moment_of_inertia():
 
 #Время
 def update_time():
-    current_time = time.strftime("%H:%M:%S")  # Получаем текущее время
-    time_label.config(text=current_time)  # Обновляем текст в виджете Label
-    time_label.after(1000, update_time)  # Вызываем функцию обновления через 1000 миллисекунд (1 секунда)
-
-
+    current_time = time.strftime("%H:%M:%S")
+    time_label.config(text=current_time)  
+    time_label.after(1000, update_time) 
 
 #Изменение цвета индикатора TRH
 def update_indicator_color(value):
@@ -751,6 +749,93 @@ def update_indicator_color(value):
     else: 
         indicator.itemconfig(circle, fill="red")
 
+
+#Расчет Accumulated Energy, кВт*ч
+def accumulated_energy_kW_h(VDC, ADC, t2, t1):
+    kW_h = VDC * ADC * (t2 - t1) / 3600
+    return kW_h
+
+
+# def make_kW_h():
+#     register_address = 30015
+#     numbers_to_read = 2
+ 
+#     try:
+#         ser = serial.Serial(
+#             port=port,
+#             baudrate=baudrate,
+#             parity=parity,
+#             stopbits=stopbits,
+#             bytesize=bytesize,
+#         )
+#         current_time = datetime.now().strftime("%H:%M:%S")
+#         try:
+#             request = bytearray(
+#                 [
+#                     slave_id,
+#                     0x4,
+#                     (register_address >> 8) & 0xFF,
+#                     register_address & 0xFF,
+#                     0x00,
+#                     numbers_to_read,
+#                 ]
+#             )
+#             ser.write(request)
+#             response = ser.read(5 + numbers_to_read * 2)
+#             print(response)
+#             data_index = 3
+#             value = (response[data_index] << 8) + response[data_index + 1]
+#             register_to_write = 1
+#             if value >= 1995:
+#                 new_value = 2000
+#             else:
+#                 new_value = value + 5
+#             try:
+#                 ser = serial.Serial(
+#                     port=port,
+#                     baudrate=baudrate,
+#                     parity=parity,
+#                     stopbits=stopbits,
+#                     bytesize=bytesize,
+#                 )
+#                 current_time = datetime.now().strftime("%H:%M:%S")
+#                 try:
+#                     request = bytearray(
+#                         [
+#                             slave_id,
+#                             0x10,
+#                             (register_to_write >> 8) & 0xFF,
+#                             register_to_write & 0xFF,
+#                             0x00,
+#                             0x01,
+#                             0x02,
+#                             (new_value >> 8) & 0xFF,
+#                             new_value & 0xFF,
+#                         ]
+#                     )
+#                     crc16 = crcmod.predefined.mkCrcFun("modbus")
+#                     crc_value = crc16(request)
+#                     request += crc_value.to_bytes(2, byteorder="big")
+#                     ser.write(request)
+#                     ser.close()
+#                 except Exception as e:
+#                     error_message = (
+#                         f"[{current_time}] Error writing to Holding Register: {e}"
+#                     )
+#                     print(error_message)
+#                     output.insert(END, error_message + "\n")
+#             except Exception as e:
+#                 error_message = f"Error reading Modbus RTU: {e}"
+#                 print(error_message)
+#                 output.insert(END, error_message + "\n")
+#         except Exception as e:
+#             error_message = f"[{current_time}]Error reading input Register: {e}"
+#             print(error_message)
+#             output.insert(END, error_message + "\n")
+#     except Exception as e:
+#         error_message = f"Error reading modbus rtu: {e}"
+#         print(error_message)
+#         output.insert(END, error_message + "\n")
 
 def resize_window(event):
     window_width = root.winfo_width()
@@ -1240,7 +1325,8 @@ power_label.place(x=250, y=320)
 
 time_label = Label(tab4, font=("Arial", 10, "bold"), foreground="white", background="#424242")
 time_label.place(x=950, y=10)
-
+time_label_text = Label(tab4, text="Current time:", font=("Arial", 10, "bold"), foreground="white", background="#424242")
+time_label_text.place(x=860, y=10)
 
 indicator = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
 indicator.pack()
