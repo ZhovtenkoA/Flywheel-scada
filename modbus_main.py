@@ -7,9 +7,6 @@ from ttkthemes import ThemedTk
 from connection_parameters import *
 
 
-current_time_for_vidget = None
-
-
 #Тестовая функция формирования запросов
 def read_holding_test():
     if not is_testing:
@@ -172,13 +169,14 @@ def write_holding():
 
 #Чтение регистров с выводом на основной экран
 def read_holding_30001_30014():
-    current_time_func()
+
     if not is_reading:
         return
  
     register_address = 30001
     numbers_to_read = 14
     try:
+        current_time_func()
         ser = serial.Serial(
             port=port,
             baudrate=baudrate,
@@ -739,7 +737,6 @@ def write_moment_of_inertia():
 
 #Время
 def current_time_func():
-    global current_time_for_vidget
     current_time_now = datetime.now()
     current_time_for_vidget = current_time_now.strftime("%H:%M:%S")
     return current_time_for_vidget
@@ -1243,7 +1240,7 @@ power_label.place(x=250, y=320)
 
 value_30001_label = Label(
     tab4,
-    text=f"{current_time_for_vidget}",
+    text=f"{current_time_func()}",
     font=("Arial", 10, "bold"),
     foreground="white",
     background="#424242",
