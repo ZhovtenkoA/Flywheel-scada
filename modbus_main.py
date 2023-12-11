@@ -5,6 +5,7 @@ from tkinter import ttk
 import crcmod.predefined
 from ttkthemes import ThemedTk
 from connection_parameters import *
+import time
 
 
 #Тестовая функция формирования запросов
@@ -176,7 +177,6 @@ def read_holding_30001_30014():
     register_address = 30001
     numbers_to_read = 14
     try:
-        current_time_func()
         ser = serial.Serial(
             port=port,
             baudrate=baudrate,
@@ -736,10 +736,10 @@ def write_moment_of_inertia():
  
 
 #Время
-def current_time_func():
-    current_time_now = datetime.now()
-    current_time_for_vidget = current_time_now.strftime("%H:%M:%S")
-    return current_time_for_vidget
+def update_time():
+    current_time = time.strftime("%H:%M:%S")  # Получаем текущее время
+    time_label.config(text=current_time)  # Обновляем текст в виджете Label
+    time_label.after(1000, update_time)  # Вызываем функцию обновления через 1000 миллисекунд (1 секунда)
 
 
 
@@ -1238,14 +1238,8 @@ power_label = Label(
 power_label.place(x=250, y=320)
 
 
-value_30001_label = Label(
-    tab4,
-    text=f"{current_time_func()}",
-    font=("Arial", 10, "bold"),
-    foreground="white",
-    background="#424242",
-)
-value_30001_label.place(x=700, y=10)
+time_label = Label(tab4, font=("Arial", 10, "bold"), foreground="white", background="#424242")
+time_label.place(x=950, y=10)
 
 
 indicator = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
@@ -1259,5 +1253,5 @@ circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + 
 
 
 root.bind("<Configure>", resize_window)
-
+update_time()
 root.mainloop()
