@@ -859,6 +859,10 @@ output_30008_percent.place(x=450, y=130, width=50, height=25)
 accumulated_kinetic_energy_output = Text(tab4)
 accumulated_kinetic_energy_output.place(x=150, y=440, width=50, height=25)
 
+power_output = Text(tab4)
+power_output.place(x=350, y=320, width=50, height=25)
+
+
 window_width = 800
 window_height = 600
 screen_width = root.winfo_screenwidth()
@@ -1210,6 +1214,17 @@ accumulated_kinetic_energy_output_label = Label(
     background="#424242",
 )
 accumulated_kinetic_energy_output_label.place(x=10, y=440) 
+
+
+
+power_label = Label(
+    tab4,
+    text="Power",
+    font=("Arial", 10, "bold"),
+    foreground="white",
+    background="#424242",
+)
+power_label.place(x=250, y=320)
 
 indicator = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
 indicator.pack()
