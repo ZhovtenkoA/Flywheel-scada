@@ -726,12 +726,12 @@ def convert_to_percentage(value):
 
 #Расчет накопленной кинетической энергии
 def accumulated_kinetic_energy(moment_of_innertion, rpm):
-    kinetic_energy = (moment_of_innertion **2)/2 * (rpm *3,14)/30
+    kinetic_energy = (float(moment_of_innertion) **2)/2 * (rpm *3,14)/30
     return kinetic_energy
 
 def write_moment_of_inertia():
     global moment_of_inertia
-    moment_of_inertia = float(inertia_value_entry.get())
+    moment_of_inertia = inertia_value_entry.get()
     return moment_of_inertia
  
 
