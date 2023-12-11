@@ -6,6 +6,10 @@ import crcmod.predefined
 from ttkthemes import ThemedTk
 from connection_parameters import *
 
+
+current_time_for_vidget = None
+
+
 #Тестовая функция формирования запросов
 def read_holding_test():
     if not is_testing:
@@ -168,6 +172,7 @@ def write_holding():
 
 #Чтение регистров с выводом на основной экран
 def read_holding_30001_30014():
+    current_time_func()
     if not is_reading:
         return
  
@@ -731,6 +736,16 @@ def write_moment_of_inertia():
     moment_of_inertia = int(inertia_value_entry.get())
     return moment_of_inertia
  
+
+#Время
+def current_time_func():
+    global current_time_for_vidget
+    current_time_now = datetime.now()
+    current_time_for_vidget = current_time_now.strftime("%H:%M:%S")
+    return current_time_for_vidget
+
+
+
 #Изменение цвета индикатора TRH
 def update_indicator_color(value):
     register_value = value
@@ -863,8 +878,8 @@ power_output = Text(tab4)
 power_output.place(x=350, y=320, width=50, height=25)
 
 
-window_width = 800
-window_height = 600
+window_width = 1024
+window_height = 720
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x = int((screen_width - window_width) / 2)
@@ -980,7 +995,7 @@ trh_plus_button = Button(
     foreground="black",
 )
 trh_plus_button.pack()
-trh_plus_button.place(x=230, y=window_height - 360, width=40, height=25)
+trh_plus_button.place(x=230, y=240, width=40, height=25)
 trh_minus_button = Button(
     tab4,
     text="-",
@@ -989,7 +1004,7 @@ trh_minus_button = Button(
     foreground="black",
 )
 trh_minus_button.pack()
-trh_minus_button.place(x=280, y=window_height - 360, width=40, height=25)
+trh_minus_button.place(x=280, y=240, width=40, height=25)
 value_trh_label = Label(
     tab4,
     text="Новый TRH",
@@ -1008,7 +1023,7 @@ write_trh_button = Button(
     foreground="black",
 )
 write_trh_button.pack()
-write_trh_button.place(x=520, y=window_height - 360, width=100, height=25)
+write_trh_button.place(x=520, y=240, width=100, height=25)
 
 #Кнока расчета накопленной кинетической єнергии 
 accumulated_kinetic_energy_label = Label(
@@ -1029,7 +1044,7 @@ write_inertia_value_button = Button(
     foreground="black",
 )
 write_inertia_value_button.pack()
-write_inertia_value_button.place(x=520, y=window_height - 160, width=100, height=25)
+write_inertia_value_button.place(x=520, y=440, width=100, height=25)
  
  
  
@@ -1206,6 +1221,7 @@ value_30014_label = Label(
     background="#424242",
 )
 value_30014_label.place(x=10, y=360)
+
 accumulated_kinetic_energy_output_label = Label(
     tab4,
     text="Energy",
@@ -1215,8 +1231,6 @@ accumulated_kinetic_energy_output_label = Label(
 )
 accumulated_kinetic_energy_output_label.place(x=10, y=440) 
 
-
-
 power_label = Label(
     tab4,
     text="Power",
@@ -1225,6 +1239,17 @@ power_label = Label(
     background="#424242",
 )
 power_label.place(x=250, y=320)
+
+
+value_30001_label = Label(
+    tab4,
+    text=f"{current_time_for_vidget}",
+    font=("Arial", 10, "bold"),
+    foreground="white",
+    background="#424242",
+)
+value_30001_label.place(x=700, y=10)
+
 
 indicator = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
 indicator.pack()
@@ -1237,5 +1262,5 @@ circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + 
 
 
 root.bind("<Configure>", resize_window)
- 
+
 root.mainloop()
