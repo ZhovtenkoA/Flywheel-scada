@@ -725,8 +725,9 @@ def convert_to_percentage(value):
     return (value * 100) / 2000
 
 #Расчет накопленной кинетической энергии
-def accumulated_kinetic_energy(moment_of_innertion, rpm):
-    kinetic_energy = (float(moment_of_innertion)*(rpm *3.14)/30** 2)/2
+def accumulated_kinetic_energy(moment_of_innertia, rpm):
+    axillar_speed = (rpm*3.14)/30
+    kinetic_energy = float(moment_of_innertia)*(axillar_speed **2/2)
     return kinetic_energy
 
 def write_moment_of_inertia():
