@@ -8,10 +8,9 @@ from connection_parameters import *
 import time
 
 #Функция проверки контрольной суммы
-def check_crc(response_crc, crc16_value):
-    print(f"resp {response_crc}")
-    print(f"req crc {crc16_value}")
-    return crc16_value == response_crc
+def check_crc(response_crc, response_data):
+    calculated_crc = calc_crc16_modbus(response_data)
+    return response_crc == calculated_crc
 
 def calc_crc16_modbus(buffer):
     crc = 0xFFFF
@@ -224,7 +223,7 @@ def read_holding_30001_30014():
                 response = ser.read(5 + numbers_to_read * 2)
                 response_data = response[:-2]
                 response_crc = response[-2:]
-                if check_crc(response_crc, crc_v):
+                if check_crc(response_crc, response_data):
                     print(response)
                     data_index = 3
                     registers = []
