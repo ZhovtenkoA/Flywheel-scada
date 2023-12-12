@@ -205,6 +205,9 @@ def read_holding_30001_30014():
                     numbers_to_read,
                 ]
             )
+            crc16 = crcmod.predefined.mkCrcFun("modbus")
+            crc_value = crc16(request)
+            request += crc_value.to_bytes(2, byteorder="big")
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
