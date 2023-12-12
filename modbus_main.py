@@ -897,7 +897,7 @@ def write_time():
         print(f"current_minute {current_minute}")
         current_second = current_time.second
         print(f"current_second {current_second}")
-        combined_value = (current_hour << 8) | current_minute & 0xFF
+        combined_value = (current_hour << 8) | (current_minute & 0xFF)
         print(f"combined_value {combined_value}")
 
         try:
@@ -911,7 +911,7 @@ def write_time():
                     register_address_1 & 0xFF,
                     0x00,
                     0x01,
-                    0x02,
+                    0x04,
                     (combined_value >> 8) & 0xFF,
                     combined_value & 0xFF,
                 ]
