@@ -242,7 +242,7 @@ def read_holding_30001_30014():
                             output_percent.delete(1.0, END)
                             output_percent.insert(END, f"{percentage}%")
                         
-                        if i == 9 and moment_of_inertia:
+                        if i == 8 and moment_of_inertia:
                             print(moment_of_inertia)
                             kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
                             print(value)
