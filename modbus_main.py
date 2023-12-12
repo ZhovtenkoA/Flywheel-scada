@@ -907,6 +907,7 @@ def write_time():
             ser.write_timeout = timeout
             print("Request for time")
             ser.write(request)
+            print("Request for time is done")
             request = bytearray(
                 [
                     slave_id,
