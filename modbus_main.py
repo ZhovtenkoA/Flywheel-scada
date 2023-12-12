@@ -216,7 +216,7 @@ def read_holding_30001_30014():
                 response = ser.read(5 + numbers_to_read * 2)
                 response_data = response[:-2]
                 response_crc = response[-2:]
-                if check_crc(response_data, response_crc, crc16_value):
+                if check_crc(response_crc, crc16_value):
                     print(response)
                     data_index = 3
                     registers = []
