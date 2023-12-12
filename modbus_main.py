@@ -953,7 +953,7 @@ def write_time():
                 )
                 ser.write(request)
                 try:
-                    response = ser.read(5 + numbers_to_read * 2)
+                    response = ser.read(7)
                     print(response)
                     byte_count = response[2]
                     data_index = 3
