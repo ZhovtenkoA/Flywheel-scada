@@ -894,7 +894,7 @@ def write_time():
         current_second = current_time.second
         combined_value = (current_hour << 8) + current_minute
         try:
-            register_address_1 = 4
+            register_address_1 = 3
             request = bytearray(
                 [
                     slave_id,
@@ -904,8 +904,8 @@ def write_time():
                     0x00,
                     0x01,
                     0x02,
-                    (combined_value >> 8) & 0xFF,
-                    combined_value & 0xFF,  
+                    (current_hour >> 8) & 0xFF,
+                    current_minute & 0xFF,  
                 ]
             )
             crc_v = calc_crc16_modbus(request)
@@ -914,7 +914,7 @@ def write_time():
             print("Request for time")
             ser.write(request)
             print("Request for time is done")
-            register_address_2 = 5
+            register_address_2 = 4
             request = bytearray(
                 [
                     slave_id,
