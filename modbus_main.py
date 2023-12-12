@@ -928,9 +928,8 @@ def write_time():
                     register_address_2 & 0xFF,
                     0x00,
                     0x01,
-                    0x02,
-                    (current_second >> 8) & 0xFF,
-                    current_second & 0xFF,
+                    0x01,  
+                    current_second & 0xFF,  
                 ]
             )
             crc_v = calc_crc16_modbus(request)
