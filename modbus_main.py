@@ -7,6 +7,12 @@ from ttkthemes import ThemedTk
 from connection_parameters import *
 import time
 
+#Функция проверки контрольной суммы
+def check_crc(response):
+    crc_func = crcmod.predefined.mkPredefinedCrcFun("crc-16")
+    crc_value = crc_func(response[:-2])
+    response_crc = int.from_bytes(response[-2:], byteorder="big")
+    return crc_value == response_crc
 
 #Тестовая функция формирования запросов
 def read_holding_test():
@@ -200,63 +206,66 @@ def read_holding_30001_30014():
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
-                print(response)
-                data_index = 3
-                registers = []
-                percentage_outputs = [
-                    output_30005_percent,
-                    output_30006_percent,
-                    output_30007_percent,
-                    output_30008_percent,
-                ]
-                for i in range(numbers_to_read):
-                    value = (response[data_index] << 8) + response[data_index + 1]
-                    registers.append(value)
-                    data_index += 2
-                    if i >= 4 and i <= 7:
-                        output_percent = percentage_outputs[i - 4]
-                        percentage = convert_to_percentage(value)
-                        output_percent.delete(1.0, END)
-                        output_percent.insert(END, f"{percentage}%")
-                    
-                    if i == 9 and moment_of_inertia:
-                        kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
-                        accumulated_kinetic_energy_output.delete(1.0, END)
-                        accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
-                    if i ==  10:
-                        update_indicator_color(value)
-                ser.close()
-                output_fields = [
-                    output_30001,
-                    output_30002,
-                    output_30003,
-                    output_30004,
-                    output_30005,
-                    output_30006,
-                    output_30007,
-                    output_30008,
-                    output_30009,
-                    output_30010,
-                    output_30011, 
-                    output_30012,
-                    output_30013,
-                    output_30014
-                ]
-                for i in range(numbers_to_read):
-                    output_fields[i].delete(1.0, END)
-                    output_fields[i].insert(END, f"{registers[i]}")
+                if check_crc(response):
+                    print(response)
+                    data_index = 3
+                    registers = []
+                    percentage_outputs = [
+                        output_30005_percent,
+                        output_30006_percent,
+                        output_30007_percent,
+                        output_30008_percent,
+                    ]
+                    for i in range(numbers_to_read):
+                        value = (response[data_index] << 8) + response[data_index + 1]
+                        registers.append(value)
+                        data_index += 2
+                        if i >= 4 and i <= 7:
+                            output_percent = percentage_outputs[i - 4]
+                            percentage = convert_to_percentage(value)
+                            output_percent.delete(1.0, END)
+                            output_percent.insert(END, f"{percentage}%")
+                        
+                        if i == 9 and moment_of_inertia:
+                            kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
+                            accumulated_kinetic_energy_output.delete(1.0, END)
+                            accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
+                        if i ==  10:
+                            update_indicator_color(value)
+                    ser.close()
+                    output_fields = [
+                        output_30001,
+                        output_30002,
+                        output_30003,
+                        output_30004,
+                        output_30005,
+                        output_30006,
+                        output_30007,
+                        output_30008,
+                        output_30009,
+                        output_30010,
+                        output_30011, 
+                        output_30012,
+                        output_30013,
+                        output_30014
+                    ]
+                    for i in range(numbers_to_read):
+                        output_fields[i].delete(1.0, END)
+                        output_fields[i].insert(END, f"{registers[i]}")
+                else:
+                    # Контрольная сумма неверна, обработайте ошибку
+                    print("Ошибка контрольной суммы в ответе")
+                    output.insert(END, "Ошибка контрольной суммы в ответе\n")
             except serial.SerialTimeoutException:
-                error_message = (
-                    f"[{current_time}] Timeout occurred while reading response"
-                )
+                error_message = f"[{current_time}] Timeout occurred while reading response"
                 print(error_message)
                 output.insert(END, error_message + "\n")
         except Exception as e:
-            error_message = f"[{current_time}]Error reading input Register: {e}"
+            error_message = f"[{current_time}] Error reading input Register: {e}"
             print(error_message)
             output.insert(END, error_message + "\n")
     except Exception as e:
-        error_message = f"Error reading modbus rtu: {e}"
+        error_message = f"Error reading input Register: {e}"
         print(error_message)
         output.insert(END, error_message + "\n")
  
