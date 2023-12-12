@@ -958,20 +958,14 @@ def write_time():
                     byte_count = response[2]
                     data_index = 3
                     registers = []
-
-                    for i in range(numbers_to_read):
-                        value = (response[data_index] << 8) + response[data_index + 1]
-                        received_hour = (value >> 8) & 0xFF
-                        received_minute = value & 0xFF
-                        registers.append(value)
-                        data_index += 2
+                    value = (response[data_index] << 8) + response[data_index + 1]
+                    received_hour = (value >> 8) & 0xFF
+                    received_minute = value & 0xFF
+                    registers.append(value)
+                    data_index += 2
 
                     ser.close()
-                    for i in range(numbers_to_read):
-                        output.insert(
-                            END,
-                            f"[{current_time}]-  Register {received_hour} - value {received_minute}\n",
-                        )
+                    output.insert(END,f"[{current_time}]-  Hour {received_hour} - minute {received_minute}\n",)
                 except serial.SerialTimeoutException:
                     error_message = (
                         f"[{current_time}] Timeout occurred while reading response"
