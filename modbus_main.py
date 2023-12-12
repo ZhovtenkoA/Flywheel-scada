@@ -892,7 +892,7 @@ def write_time():
         current_second = current_time.second
         combined_value = (current_hour << 8) + current_minute
         try:
-            register_address_1 = 3
+            register_address_1 = 4
             request = bytearray(
                 [
                     slave_id,
@@ -916,7 +916,7 @@ def write_time():
                 [
                     slave_id,
                     0x10,
-                    0x00, 0x04,  #adress
+                    0x00, 0x05,  #adress
                     0x00, 0x01,  
                     0x02,  
                     (current_second >> 8) & 0xFF, current_second & 0xFF,  
