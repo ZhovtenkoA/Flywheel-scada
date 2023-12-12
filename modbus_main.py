@@ -721,6 +721,7 @@ def start_reading():
         background="green", font=("Arial", 10, "bold"), foreground="white"
     )
     read_holding_30001_30014()
+    time.sleep(5)
     write_time()
  
 def stop_reading():
