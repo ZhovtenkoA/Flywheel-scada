@@ -11,7 +11,9 @@ import time
 def check_crc(response):
     crc_func = crcmod.predefined.mkPredefinedCrcFun("crc-16")
     crc_value = crc_func(response[:-2])
+    print(f"ожидаемая контрольная сумма {crc_value}")
     response_crc = int.from_bytes(response[-2:], byteorder="big")
+    print(f"полученная контрольная сумма {response_crc}")
     return crc_value == response_crc
 
 #Тестовая функция формирования запросов
