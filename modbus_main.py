@@ -892,14 +892,18 @@ def write_time():
         current_second = current_time.second
         combined_value = (current_hour << 8) + current_minute
         try:
+            register_address_1 = 3
             request = bytearray(
                 [
                     slave_id,
                     0x10,
-                    0x00, 0x03,  #adress
-                    0x00, 0x01,  
-                    0x02,  
-                    (combined_value >> 8) & 0xFF, combined_value & 0xFF,  
+                    (register_address_1 >> 8) & 0xFF,
+                    register_address_1 & 0xFF,
+                    0x00,
+                    0x01,
+                    0x02,
+                    (combined_value >> 8) & 0xFF,
+                    combined_value & 0xFF,  
                 ]
             )
             crc_v = calc_crc16_modbus(request)
