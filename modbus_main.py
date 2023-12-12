@@ -214,16 +214,13 @@ def read_holding_30001_30014():
                     numbers_to_read,
                 ]
             )
-            crc16 = crcmod.predefined.mkCrcFun("modbus")
-            crc_value = crc16(request)
-            crc16_value = crc_value.to_bytes(2, byteorder="big")
-            request += crc16_value
+            request += calc_crc16_modbus(request)
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
                 response_data = response[:-2]
                 response_crc = response[-2:]
-                if check_crc(response_crc, crc16_value):
+                if check_crc(response_crc, calc_crc16_modbus(request)):
                     print(response)
                     data_index = 3
                     registers = []
