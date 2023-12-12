@@ -216,10 +216,7 @@ def read_holding_30001_30014():
                 ]
             )
             crc_v = calc_crc16_modbus(request)
-            # print(f"Request {request}")
-            # print(f"Request crc{crc_v}")
             request += crc_v
-            # print(f"Request + crc {request}")
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
@@ -246,7 +243,10 @@ def read_holding_30001_30014():
                             output_percent.insert(END, f"{percentage}%")
                         
                         if i == 9 and moment_of_inertia:
+                            print(moment_of_inertia)
                             kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
+                            print(value)
+                            print(kinetic_energy)
                             accumulated_kinetic_energy_output.delete(1.0, END)
                             accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
                         if i ==  10:
@@ -272,7 +272,6 @@ def read_holding_30001_30014():
                         output_fields[i].delete(1.0, END)
                         output_fields[i].insert(END, f"{registers[i]}")
                 else:
-                    # Контрольная сумма неверна, обработайте ошибку
                     print("Ошибка контрольной суммы в ответе")
                     output.insert(END, "Ошибка контрольной суммы в ответе\n")
             except serial.SerialTimeoutException:
