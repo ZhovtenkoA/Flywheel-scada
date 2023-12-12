@@ -201,8 +201,9 @@ def read_holding_30001_30014():
             parity=parity,
             stopbits=stopbits,
             bytesize=bytesize,
+            timeout = timeout
         )
-        ser.timeout = timeout
+        # ser.timeout = timeout
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -217,6 +218,7 @@ def read_holding_30001_30014():
             )
             crc_v = calc_crc16_modbus(request)
             request += crc_v
+            ser.write_timeout = timeout
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
@@ -755,6 +757,7 @@ def convert_to_percentage(value):
 def accumulated_kinetic_energy(moment_of_innertia, rpm):
     axillar_speed = (rpm*3.14)/30
     kinetic_energy = float(moment_of_innertia)*(axillar_speed **2/2)
+    kinetic_energy = round(kinetic_energy, 2)
     return kinetic_energy
 
 def write_moment_of_inertia():
