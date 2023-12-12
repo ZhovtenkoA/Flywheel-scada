@@ -937,6 +937,7 @@ def write_time():
             request += crc_v
             ser.write_timeout = timeout
             ser.write(request)
+            print(" Второй Request for time is done")
 
         except serial.SerialException as e:
             error_message = f"[{current_time}] Serial port error: {e}"
