@@ -886,14 +886,17 @@ def write_time():
             parity=parity,
             stopbits=stopbits,
             bytesize=bytesize,
+            timeout=timeout
         )
-        
+
         current_time = datetime.now()
         current_hour = current_time.hour
         current_minute = current_time.minute
         current_second = current_time.second
         combined_value = (current_hour << 8) + current_minute
+
         try:
+            # Запись часов и минут
             register_address_1 = 3
             request = bytearray(
                 [
@@ -904,8 +907,8 @@ def write_time():
                     0x00,
                     0x01,
                     0x02,
-                    (current_hour >> 8) & 0xFF,
-                    current_minute & 0xFF,  
+                    (combined_value >> 8) & 0xFF,
+                    combined_value & 0xFF,
                 ]
             )
             crc_v = calc_crc16_modbus(request)
@@ -914,6 +917,8 @@ def write_time():
             print("Request for time")
             ser.write(request)
             print("Request for time is done")
+
+            # Запись секунд
             register_address_2 = 4
             request = bytearray(
                 [
@@ -925,22 +930,38 @@ def write_time():
                     0x01,
                     0x02,
                     (current_second >> 8) & 0xFF,
-                    current_second & 0xFF,  
+                    current_second & 0xFF,
                 ]
             )
             crc_v = calc_crc16_modbus(request)
             request += crc_v
             ser.write_timeout = timeout
             ser.write(request)
-            ser.close()
-        except Exception as e:
-            error_message = f"[{current_time}] Error reading input Register: {e}"
+
+        except serial.SerialException as e:
+            error_message = f"[{current_time}] Serial port error: {e}"
             print(error_message)
             output.insert(END, error_message + "\n")
-    except Exception as e:
-        error_message = f"Error reading Modbus RTU: {e}"
+
+        except Exception as e:
+            error_message = f"[{current_time}] Error writing time: {e}"
+            print(error_message)
+            output.insert(END, error_message + "\n")
+
+        finally:
+            ser.close()
+
+    except serial.SerialException as e:
+        error_message = f"Serial port error: {e}"
         print(error_message)
         output.insert(END, error_message + "\n")
+
+    except Exception as e:
+        error_message = f"Error opening serial port: {e}"
+        print(error_message)
+        output.insert(END, error_message + "\n")
+
+
 
 def resize_window(event):
     window_width = root.winfo_width()
