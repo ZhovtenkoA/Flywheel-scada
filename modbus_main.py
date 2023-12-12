@@ -14,9 +14,16 @@ def check_crc(response_crc, crc16_value):
     return crc16_value == response_crc
 
 def calc_crc16_modbus(buffer):
-    crc_func = crcmod.predefined.mkPredefinedCrcFun("modbus")
-    crc_value = crc_func(buffer)
-    return crc_value.to_bytes(2, byteorder="big")
+    crc = 0xFFFF
+    for byte in buffer:
+        crc ^= byte
+        for _ in range(8):
+            flag = crc & 0x0001
+            crc >>= 1
+            if flag:
+                crc ^= 0xA001
+    crc = ((crc & 0xFF) << 8) | ((crc & 0xFF00) >> 8)
+    return crc.to_bytes(2, byteorder='big')
 
 #Тестовая функция формирования запросов
 def read_holding_test():
