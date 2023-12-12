@@ -13,7 +13,8 @@ def check_crc(response_data, response_crc):
     crc_value = crc_func(response_data)
     print(f"crc_value {crc_value}")
     calculated_crc = crc_value.to_bytes(2, byteorder="big")
-    print(f"calculated_crc {response_crc}")
+    print(f"resp {response_crc}")
+    print(f"calc {calculated_crc}")
     return calculated_crc == response_crc
 
 def calc_crc16_modbus(buffer):
@@ -216,7 +217,6 @@ def read_holding_30001_30014():
                 response = ser.read(5 + numbers_to_read * 2)
                 response_data = response[:-2]
                 response_crc = response[-2:]
-                response_crc = response_crc.to_bytes(2, byteorder='big')
                 if check_crc(response_data, response_crc):
                     print(response)
                     data_index = 3
