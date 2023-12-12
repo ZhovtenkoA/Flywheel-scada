@@ -876,6 +876,7 @@ def make_kW_h():
         output.insert(END, error_message + "\n")
 
 def write_time():
+    print("writing time")
     try:
         ser = serial.Serial(
             port=port,
