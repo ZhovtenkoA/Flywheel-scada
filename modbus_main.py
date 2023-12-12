@@ -897,7 +897,7 @@ def write_time():
         print(f"current_minute {current_minute}")
         current_second = current_time.second
         print(f"current_second {current_second}")
-        combined_value = (current_hour << 8) + current_minute
+        combined_value = (current_hour << 8) | current_minute
         print(f"combined_value {combined_value}")
 
         try:
