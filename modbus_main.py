@@ -902,11 +902,11 @@ def write_time():
                     (combined_value >> 8) & 0xFF, combined_value & 0xFF,  
                 ]
             )
-            crc16 = crcmod.predefined.mkCrcFun("modbus")
-            crc_value = crc16(request)
-            request += crc_value.to_bytes(2, byteorder="big")
+            crc_v = calc_crc16_modbus(request)
+            request += crc_v
+            ser.write_timeout = timeout
+            print("Request for time")
             ser.write(request)
-            
             request = bytearray(
                 [
                     slave_id,
