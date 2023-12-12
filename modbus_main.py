@@ -10,8 +10,8 @@ import time
 #Функция проверки контрольной суммы
 def check_crc(response_crc, response_data):
     print(f'response_crc{response_crc}')
-    print(f'calculated_crc{calculated_crc}')
     calculated_crc = calc_crc16_modbus(response_data)
+    print(f'calculated_crc{calculated_crc}')
     return response_crc == calculated_crc
 
 def calc_crc16_modbus(buffer):
@@ -216,10 +216,10 @@ def read_holding_30001_30014():
                 ]
             )
             crc_v = calc_crc16_modbus(request)
-            print(f"Request {request}")
-            print(f"Request crc{crc_v}")
+            # print(f"Request {request}")
+            # print(f"Request crc{crc_v}")
             request += crc_v
-            print(f"Request + crc {request}")
+            # print(f"Request + crc {request}")
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
