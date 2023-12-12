@@ -890,10 +890,15 @@ def write_time():
         )
 
         current_time = datetime.now()
+        print(f"current_time {current_time}")
         current_hour = current_time.hour
+        print(f"current_hour {current_hour}")
         current_minute = current_time.minute
+        print(f"current_minute {current_minute}")
         current_second = current_time.second
+        print(f"current_second {current_second}")
         combined_value = (current_hour << 8) + current_minute
+        print(f"combined_value {combined_value}")
 
         try:
             # Запись часов и минут
@@ -928,8 +933,9 @@ def write_time():
                     register_address_2 & 0xFF,
                     0x00,
                     0x01,
-                    0x01,  
-                    current_second & 0xFF,  
+                    0x02,  
+                    (current_second >> 8) & 0xFF,
+                    current_second & 0xFF  
                 ]
             )
             crc_v = calc_crc16_modbus(request)
