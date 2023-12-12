@@ -953,15 +953,19 @@ def write_time():
                 )
                 ser.write(request)
                 try:
-                    response = ser.read(7)
+                    response = ser.read(5 + numbers_to_read * 2)
                     print(response)
                     byte_count = response[2]
                     data_index = 3
-                    # value = (response[data_index] << 8) + response[data_index + 1]
-                    received_hour = (response[data_index] >> 8) & 0xFF
-                    print(received_hour)
-                    received_minute = response[data_index + 1] & 0xFF
-                    print(received_minute)
+                    registers = []
+
+                    for i in range(numbers_to_read):
+                        value = (response[data_index] << 8) + response[data_index + 1]
+                        received_hour = (value >> 8) & 0xFF
+                        received_minute = value & 0xFF
+                        registers.append(value)
+                        data_index += 2
+
                     ser.close()
                     output.insert(END,f"[{current_time}]-  Hour {received_hour} - minute {received_minute}\n",)
                 except serial.SerialTimeoutException:
