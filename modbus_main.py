@@ -9,9 +9,7 @@ import time
 
 #Функция проверки контрольной суммы
 def check_crc(response_crc, response_data):
-    print(f'response_crc{response_crc}')
     calculated_crc = calc_crc16_modbus(response_data)
-    print(f'calculated_crc{calculated_crc}')
     return response_crc == calculated_crc
 
 def calc_crc16_modbus(buffer):
@@ -245,10 +243,7 @@ def read_holding_30001_30014():
                             output_percent.insert(END, f"{percentage}%")
                         
                         if i == 8 and moment_of_inertia:
-                            print(moment_of_inertia)
                             kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
-                            print(value)
-                            print(kinetic_energy)
                             accumulated_kinetic_energy_output.delete(1.0, END)
                             accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
                         if i ==  10:
@@ -724,6 +719,7 @@ def start_reading():
         background="green", font=("Arial", 10, "bold"), foreground="white"
     )
     read_holding_30001_30014()
+    write_time()
  
 def stop_reading():
     global is_reading
@@ -870,6 +866,60 @@ def make_kW_h():
                 error_message = f"[{current_time}] Error writing to Holding Register: {e}"
                 print(error_message)
                 output.insert(END, error_message + "\n")
+        except Exception as e:
+            error_message = f"[{current_time}] Error reading input Register: {e}"
+            print(error_message)
+            output.insert(END, error_message + "\n")
+    except Exception as e:
+        error_message = f"Error reading Modbus RTU: {e}"
+        print(error_message)
+        output.insert(END, error_message + "\n")
+
+def write_time():
+    try:
+        ser = serial.Serial(
+            port=port,
+            baudrate=baudrate,
+            parity=parity,
+            stopbits=stopbits,
+            bytesize=bytesize,
+        )
+        
+        current_time = datetime.now()
+        current_hour = current_time.hour
+        current_minute = current_time.minute
+        current_second = current_time.second
+        combined_value = (current_hour << 8) + current_minute
+        try:
+            request = bytearray(
+                [
+                    slave_id,
+                    0x10,
+                    0x00, 0x03,  #adress
+                    0x00, 0x01,  
+                    0x02,  
+                    (combined_value >> 8) & 0xFF, combined_value & 0xFF,  
+                ]
+            )
+            crc16 = crcmod.predefined.mkCrcFun("modbus")
+            crc_value = crc16(request)
+            request += crc_value.to_bytes(2, byteorder="big")
+            ser.write(request)
+            
+            request = bytearray(
+                [
+                    slave_id,
+                    0x10,
+                    0x00, 0x04,  #adress
+                    0x00, 0x01,  
+                    0x02,  
+                    (current_second >> 8) & 0xFF, current_second & 0xFF,  
+                ]
+            )
+            crc_value = crc16(request)
+            request += crc_value.to_bytes(2, byteorder="big")
+            ser.write(request)
+            ser.close()
         except Exception as e:
             error_message = f"[{current_time}] Error reading input Register: {e}"
             print(error_message)
