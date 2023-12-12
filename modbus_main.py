@@ -216,7 +216,7 @@ def read_holding_30001_30014():
                 response = ser.read(5 + numbers_to_read * 2)
                 response_data = response[:-2]
                 response_crc = response[-2:]
-                response_crc = hex(response_crc)
+                response_crc = response_crc.to_bytes(2, byteorder='big')
                 if check_crc(response_data, response_crc):
                     print(response)
                     data_index = 3
