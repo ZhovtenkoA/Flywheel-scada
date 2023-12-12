@@ -917,8 +917,9 @@ def write_time():
                     (current_second >> 8) & 0xFF, current_second & 0xFF,  
                 ]
             )
-            crc_value = crc16(request)
-            request += crc_value.to_bytes(2, byteorder="big")
+            crc_v = calc_crc16_modbus(request)
+            request += crc_v
+            ser.write_timeout = timeout
             ser.write(request)
             ser.close()
         except Exception as e:
