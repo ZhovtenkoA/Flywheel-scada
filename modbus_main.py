@@ -215,7 +215,10 @@ def read_holding_30001_30014():
                 ]
             )
             crc_v = calc_crc16_modbus(request)
+            print(f"Request {request}")
+            print(f"Request crc{crc_v}")
             request += crc_v
+            print(f"Request + crc {request}")
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
