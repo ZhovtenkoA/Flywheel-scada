@@ -938,6 +938,50 @@ def write_time():
             ser.write_timeout = timeout
             ser.write(request)
             print(" Второй Request for time is done")
+            try:
+                register_address = 30015
+                numbers_to_read = 1
+                request = bytearray(
+                    [
+                        slave_id,
+                        0x4,
+                        (register_address >> 8) & 0xFF,
+                        register_address & 0xFF,
+                        0x00,
+                        numbers_to_read,
+                    ]
+                )
+                ser.write(request)
+                try:
+                    response = ser.read(5 + numbers_to_read * 2)
+                    print(response)
+                    byte_count = response[2]
+                    data_index = 3
+                    registers = []
+
+                    for i in range(numbers_to_read):
+                        value = (response[data_index] << 8) + response[data_index + 1]
+                        received_hour = (value >> 8) & 0xFF
+                        received_minute = value & 0xFF
+                        registers.append(value)
+                        data_index += 2
+
+                    ser.close()
+                    for i in range(numbers_to_read):
+                        output.insert(
+                            END,
+                            f"[{current_time}]-  Register {received_hour} - value {received_minute}\n",
+                        )
+                except serial.SerialTimeoutException:
+                    error_message = (
+                        f"[{current_time}] Timeout occurred while reading response"
+                    )
+                    print(error_message)
+                    output.insert(END, error_message + "\n")
+            except Exception as e:
+                error_message = f"[{current_time}]Error reading input Register: {e}"
+                print(error_message)
+                output.insert(END, error_message + "\n")
 
         except serial.SerialException as e:
             error_message = f"[{current_time}] Serial port error: {e}"
