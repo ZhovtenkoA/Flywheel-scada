@@ -993,7 +993,7 @@ output_30008_percent = Text(tab4)
 output_30008_percent.place(x=450, y=130, width=50, height=25)
 
 accumulated_kinetic_energy_output = Text(tab4)
-accumulated_kinetic_energy_output.place(x=150, y=440, width=60, height=25)
+accumulated_kinetic_energy_output.place(x=150, y=440, width=80, height=25)
 
 kW_power_output = Text(tab4)
 kW_power_output.place(x=350, y=320, width=60, height=25)
@@ -1157,6 +1157,7 @@ accumulated_kinetic_energy_label = Label(
 accumulated_kinetic_energy_label.place(x=300, y=440)
 inertia_value_entry = Entry(tab4)
 inertia_value_entry.place(x=430, y=440, width=60, height=25)
+inertia_value_entry.insert(0, "0.3")
 write_inertia_value_button = Button(
     tab4,
     text="Отправить",

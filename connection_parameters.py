@@ -6,11 +6,11 @@ parity = "N"  # Четность: 'N' - нет, 'E' - четная, 'O' - неч
 stopbits = 1  # Количество стоп-битов
 bytesize = 8  # Размер байта
 slave_id = 1
-timeout = 5
+timeout = 2
 
 is_reading = False
 is_testing = False
 is_logging = False
 
 
-moment_of_inertia = None
+moment_of_inertia = 0.3
