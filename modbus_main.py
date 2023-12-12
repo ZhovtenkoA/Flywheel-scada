@@ -8,13 +8,18 @@ from connection_parameters import *
 import time
 
 #Функция проверки контрольной суммы
-def check_crc(response):
-    crc_func = crcmod.predefined.mkPredefinedCrcFun("crc-16")
-    crc_value = crc_func(response[:-2])
-    print(f"ожидаемая контрольная сумма {crc_value}")
-    response_crc = int.from_bytes(response[-2:], byteorder="big")
-    print(f"полученная контрольная сумма {response_crc}")
-    return crc_value == response_crc
+def check_crc(response_data, response_crc):
+    crc_func = crcmod.predefined.mkPredefinedCrcFun("modbus")
+    crc_value = crc_func(response_data)
+    print(f"crc_value {crc_value}")
+    calculated_crc = crc_value.to_bytes(2, byteorder="big")
+    print(f"calculated_crc {response_crc}")
+    return calculated_crc == response_crc
+
+def calc_crc16_modbus(buffer):
+    crc_func = crcmod.predefined.mkPredefinedCrcFun("modbus")
+    crc_value = crc_func(buffer)
+    return crc_value.to_bytes(2, byteorder="big")
 
 #Тестовая функция формирования запросов
 def read_holding_test():
@@ -205,15 +210,13 @@ def read_holding_30001_30014():
                     numbers_to_read,
                 ]
             )
-            print(request)
-            crc16 = crcmod.predefined.mkCrcFun("modbus")
-            crc_value = crc16(request)
-            request += crc_value.to_bytes(2, byteorder="big")
-            print(request)
+            request += calc_crc16_modbus(request)
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
-                if check_crc(response):
+                response_data = response[:-2]
+                response_crc = response[-2:]
+                if check_crc(response_data, response_crc):
                     print(response)
                     data_index = 3
                     registers = []
