@@ -10,6 +10,8 @@ import time
 #Функция проверки контрольной суммы
 def check_crc(response_crc, response_data):
     calculated_crc = calc_crc16_modbus(response_data)
+    print(f"calculated_crc - {calculated_crc}")
+    print(f"response_crc - {response_crc}")
     return response_crc == calculated_crc
 
 def calc_crc16_modbus(buffer):
