@@ -721,8 +721,7 @@ def start_reading():
         background="green", font=("Arial", 10, "bold"), foreground="white"
     )
     read_holding_30001_30014()
-    time.sleep(5)
-    write_time()
+
  
 def stop_reading():
     global is_reading
@@ -1262,7 +1261,7 @@ write_inertia_value_button.place(x=520, y=440, width=100, height=25)
 kW_power_button = Button(
     tab4,
     text="Рассчет kW*h",
-    command=make_kW_h,
+    command=write_time,
     font=("Arial", 10, "bold"),
     foreground="black",
 )
