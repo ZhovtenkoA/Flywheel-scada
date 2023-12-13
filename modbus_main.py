@@ -263,6 +263,8 @@ def read_holding_30001_30014():
                         output_30014
                     ]
                     for i in range(numbers_to_read):
+                        if i == 12:
+                            pass
                         if i == 13:
                             convert_VDC(registers[i])
                             output_fields[i+1].delete(1.0, END)
