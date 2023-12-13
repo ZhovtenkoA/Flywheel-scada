@@ -18,10 +18,14 @@ def connection():
             parity=parity,
             stopbits=stopbits,
             bytesize=bytesize,
+            timeout = timeout
         )
         print("Соединение установлено")
     except Exception as e:
         print(f"Ошибка при установке соединения: {e}")
+    finally:
+        if ser is not None:
+            ser.close()
 
 
 #Функция проверки контрольной суммы
@@ -94,14 +98,6 @@ def read_holding():
     numbers_to_read = int(numbers_to_read_entry.get())
  
     try:
-        # ser = serial.Serial(
-        #     port=port,
-        #     baudrate=baudrate,
-        #     parity=parity,
-        #     stopbits=stopbits,
-        #     bytesize=bytesize,
-        # )
-        ser.timeout = timeout
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -125,7 +121,6 @@ def read_holding():
                     value = (response[data_index] << 8) + response[data_index + 1]
                     registers.append(value)
                     data_index += 2
-                # ser.close()
                 register_type = "Input Register"
                 for i in range(numbers_to_read):
                     output.insert(
@@ -153,17 +148,10 @@ def read_holding():
 
 #Запись значения в определенный регистр
 def write_holding():
+    global ser
     register_address = int(register_address_entry.get())
     value = int(value_entry.get())
- 
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -183,7 +171,6 @@ def write_holding():
             crc_value = crc16(request)
             request += crc_value.to_bytes(2, byteorder="big")
             ser.write(request)
-            ser.close()
             output.insert(
                 END,
                 f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
@@ -200,22 +187,13 @@ def write_holding():
 
 #Чтение регистров с выводом на основной экран
 def read_holding_30001_30014():
-
+    global ser
     if not is_reading:
         return
  
     register_address = 30001
     numbers_to_read = 14
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-            timeout = timeout
-        )
-        # ser.timeout = timeout
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -262,7 +240,6 @@ def read_holding_30001_30014():
                             accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
                         if i ==  10:
                             update_indicator_color(value)
-                    ser.close()
                     output_fields = [
                         output_30001,
                         output_30002,
@@ -304,17 +281,11 @@ def read_holding_30001_30014():
 
 #Функции управления PWM (разгон, торможение, стоп)
 def acceleration():
+    global ser
     register_address = 30005
     numbers_to_read = 1
  
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -364,7 +335,6 @@ def acceleration():
                     crc_value = crc16(request)
                     request += crc_value.to_bytes(2, byteorder="big")
                     ser.write(request)
-                    ser.close()
                 except Exception as e:
                     error_message = (
                         f"[{current_time}] Error writing to Holding Register: {e}"
@@ -385,17 +355,12 @@ def acceleration():
         output.insert(END, error_message + "\n")
  
 def slowdown():
+    global ser
     register_address = 30005
     numbers_to_read = 1
  
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
+
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -445,7 +410,6 @@ def slowdown():
                     crc_value = crc16(request)
                     request += crc_value.to_bytes(2, byteorder="big")
                     ser.write(request)
-                    ser.close()
                 except Exception as e:
                     error_message = (
                         f"[{current_time}] Error writing to Holding Register: {e}"
