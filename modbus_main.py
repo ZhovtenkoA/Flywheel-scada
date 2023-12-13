@@ -263,6 +263,12 @@ def read_holding_30001_30014():
                         output_30014
                     ]
                     for i in range(numbers_to_read):
+                        if i == 13:
+                            convert_VDC(registers[i])
+                            output_fields[i+1].delete(1.0, END)
+                            output_fields[i+1].insert(END, f"{registers[i]}")
+                            output_fields[i].delete(1.0, END)
+                            output_fields[i].insert(END, f"{registers[i]}")
                         output_fields[i].delete(1.0, END)
                         output_fields[i].insert(END, f"{registers[i]}")
                 else:
@@ -899,7 +905,9 @@ def write_time():
         print(error_message)
         output.insert(END, error_message + "\n")
 
-
+def convert_VDC(adc):
+    V = adc * 0.1893310546 # V = (ADC*23.5*3.3) / 4096
+    return V
 
 def resize_window(event):
     window_width = root.winfo_width()
@@ -962,46 +970,46 @@ output.pack(fill=BOTH, expand=True)
 output_test = Text(tab3)
 output_test.pack(fill=BOTH, expand=True)
  
-output_30001 = Text(tab4)
+output_30001 = Text(tab4) #ADC (I1)
 output_30001.place(x=150, y=10, width=60, height=25)
  
-output_30002 = Text(tab4)
+output_30002 = Text(tab4) #ADC (I2)
 output_30002.place(x=150, y=50, width=60, height=25)
  
-output_30003 = Text(tab4)
+output_30003 = Text(tab4) #ADC (I3)
 output_30003.place(x=150, y=90, width=60, height=25)
  
-output_30004 = Text(tab4)
+output_30004 = Text(tab4) #ADC (I4)
 output_30004.place(x=150, y=130, width=60, height=25)
  
-output_30005 = Text(tab4)
+output_30005 = Text(tab4) #PWM1
 output_30005.place(x=350, y=10, width=60, height=25)
  
-output_30006 = Text(tab4)
+output_30006 = Text(tab4) #PWM2
 output_30006.place(x=350, y=50, width=60, height=25)
  
-output_30007 = Text(tab4)
+output_30007 = Text(tab4) #PWM3
 output_30007.place(x=350, y=90, width=60, height=25)
  
-output_30008 = Text(tab4)
+output_30008 = Text(tab4) #PWM4
 output_30008.place(x=350, y=130, width=60, height=25)
  
-output_30009 = Text(tab4)
+output_30009 = Text(tab4) #RPM
 output_30009.place(x=150, y=400, width=60, height=25)
  
-output_30010 = Text(tab4)
+output_30010 = Text(tab4) #freq
 output_30010.place(x=150, y=200, width=60, height=25)
  
-output_30011 = Text(tab4)
+output_30011 = Text(tab4) #TRH
 output_30011.place(x=150, y=240, width=60, height=25)
 
-output_30012 = Text(tab4)
+output_30012 = Text(tab4) #ADDR
 output_30012.place(x=150, y=280, width=60, height=25)
 
-output_30013 = Text(tab4)
+output_30013 = Text(tab4) #VDC
 output_30013.place(x=150, y=320, width=60, height=25)
 
-output_30014 = Text(tab4)
+output_30014 = Text(tab4) #ADC
 output_30014.place(x=150, y=360, width=60, height=25)
  
  
