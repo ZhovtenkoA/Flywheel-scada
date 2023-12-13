@@ -907,7 +907,8 @@ def write_time():
         output.insert(END, error_message + "\n")
 
 def convert_VDC(vdc):
-    V = vdc * 0.01893310546 # V = (ADC*23.5*3.3) / 4096
+    V = (vdc*23.6*3.3) / 4096 
+    #0.01893310546
     V = round(V, 2)
     return V
 
