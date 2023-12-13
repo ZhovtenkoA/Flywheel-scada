@@ -5,35 +5,14 @@ from tkinter import ttk
 import crcmod.predefined
 from ttkthemes import ThemedTk
 from connection_parameters import *
+from serial_functions import *
 import time
 
-
-def connection():
-    print("Starting connection...")
-    global ser
-    try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-            timeout = timeout
-        )
-        print("Соединение установлено")
-    except Exception as e:
-        print(f"Ошибка при установке соединения: {e}")
-
-
-def close_connection():
-    print("Closing connection...")
-    if ser is not None:
-        ser.close()
 
 def on_closing():
     close_connection()
     root.destroy()
-
+    
 #Функция проверки контрольной суммы
 def check_crc(response_crc, response_data):
     calculated_crc = calc_crc16_modbus(response_data)
