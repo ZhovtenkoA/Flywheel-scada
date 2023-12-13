@@ -79,7 +79,7 @@ def read_holding_test():
         output_test.insert(END, f"[{current_time}] долбим долбим долбим\n")
 
     except Exception as e:
-        error_message = f"[{current_time}]Error reading input Register: {e}"
+        error_message = f"[{current_time}]Ошибка тестовой отправки запросов: {e}"
         print(error_message)
         output_test.insert(END, error_message + "\n")
  
@@ -125,14 +125,14 @@ def read_holding():
                     END,
                     f"[{current_time}] {register_type} -  Register {register_address + i} - value {registers[i]}\n",
                 )
-        except serial.SerialTimeoutException:
+        except Exception as e:
             error_message = (
-                f"[{current_time}] Timeout occurred while reading response"
+                f"[{current_time}] Ошибка получения ответа: {e}"
             )
             print(error_message)
             output.insert(END, error_message + "\n")
     except Exception as e:
-        error_message = f"[{current_time}]Error reading input Register: {e}"
+        error_message = f"[{current_time}]Ошибка отправки запроса: {e}"
         print(error_message)
         output.insert(END, error_message + "\n")
 
@@ -169,7 +169,7 @@ def write_holding():
             f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
         )
     except Exception as e:
-        error_message = f"[{current_time}] Error writing to Holding Register: {e}"
+        error_message = f"[{current_time}] Ошибка отправки запроса на запись: {e}"
         print(error_message)
         output.insert(END, error_message + "\n")
 
@@ -254,14 +254,15 @@ def read_holding_30001_30014():
                         output_fields[i].delete(1.0, END)
                         output_fields[i].insert(END, f"{registers[i]}")
             else:
-                print("Ошибка контрольной суммы в ответе")
-                output.insert(END, "Ошибка контрольной суммы в ответе\n")
-        except serial.SerialTimeoutException:
-            error_message = f"[{current_time}] Timeout occurred while reading response"
+                error_message = f"[{current_time}]Ошибка контрольной суммы в ответе"
+                print(error_message)
+                output.insert(END, error_message + "\n")
+        except Exception as e:
+            error_message = f"[{current_time}] Ошибка получения ответа "
             print(error_message)
             output.insert(END, error_message + "\n")
     except Exception as e:
-        error_message = f"[{current_time}] Error reading input Register: {e}"
+        error_message = f"[{current_time}] Ошибка отправки запроса на чтение: {e}"
         print(error_message)
         output.insert(END, error_message + "\n")
 
@@ -332,20 +333,20 @@ def acceleration():
                         ser.write(request)
                     except Exception as e:
                         error_message = (
-                            f"[{current_time}] Error writing to Holding Register: {e}"
+                            f"[{current_time}] Ошибка записи: {e}"
                         )
                         print(error_message)
                         output.insert(END, error_message + "\n")
                 except Exception as e:
-                    error_message = f"Error reading Modbus RTU: {e}"
+                    error_message = f"Ошибка чтения: {e}"
                     print(error_message)
                     output.insert(END, error_message + "\n")
         except Exception as e:
-            error_message = f"[{current_time}]Error reading input Register: {e}"
+            error_message = f"[{current_time}]Ошибка получения ответа: {e}"
             print(error_message)
             output.insert(END, error_message + "\n")
     except Exception as e:
-        error_message = f"Error reading modbus rtu: {e}"
+        error_message = f"[{current_time}] Ошибка отправки запроса на чтение: {e}"
         print(error_message)
         output.insert(END, error_message + "\n")
 
