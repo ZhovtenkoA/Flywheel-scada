@@ -248,6 +248,7 @@ def read_holding_30001_30014():
                             update_indicator_color(value)
                         if i == 14:
                             vdc = convert_VDC(adc = value)
+                            print(f"vdc {vdc}")
                     output_fields = [
                         output_30001,
                         output_30002,
@@ -262,15 +263,10 @@ def read_holding_30001_30014():
                         output_30011, 
                         output_30012,
                         output_30013,
-                        output_30014
-                    ]
+                        output_30014]
                     for i in range(numbers_to_read):
-                        if i == 12:
-                            output_fields[i].delete(1.0, END)
-                            output_fields[i].insert(END, f"{vdc}")
-                        else:
-                            output_fields[i].delete(1.0, END)
-                            output_fields[i].insert(END, f"{registers[i]}")
+                        output_fields[i].delete(1.0, END)
+                        output_fields[i].insert(END, f"{registers[i]}")
                 else:
                     print("Ошибка контрольной суммы в ответе")
                     output.insert(END, "Ошибка контрольной суммы в ответе\n")
