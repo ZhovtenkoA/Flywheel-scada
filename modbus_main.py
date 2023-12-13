@@ -23,10 +23,16 @@ def connection():
         print("Соединение установлено")
     except Exception as e:
         print(f"Ошибка при установке соединения: {e}")
-    finally:
-        if ser is not None:
-            ser.close()
 
+
+def close_connection():
+    print("Closing connection...")
+    if ser is not None:
+        ser.close()
+
+def on_closing():
+    close_connection()
+    root.destroy()
 
 #Функция проверки контрольной суммы
 def check_crc(response_crc, response_data):
@@ -1452,6 +1458,9 @@ center_y = 10
 radius = 8
 circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="grey")
 
+
+
+root.protocol("WM_DELETE_WINDOW", on_closing)
 auto_scroll()
 root.bind("<Configure>", resize_window)
 update_time()
