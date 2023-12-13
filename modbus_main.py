@@ -7,6 +7,23 @@ from ttkthemes import ThemedTk
 from connection_parameters import *
 import time
 
+
+def connection():
+    print("Starting connection...")
+    global ser
+    try:
+        ser = serial.Serial(
+            port=port,
+            baudrate=baudrate,
+            parity=parity,
+            stopbits=stopbits,
+            bytesize=bytesize,
+        )
+        print("Соединение установлено")
+    except Exception as e:
+        print(f"Ошибка при установке соединения: {e}")
+
+
 #Функция проверки контрольной суммы
 def check_crc(response_crc, response_data):
     calculated_crc = calc_crc16_modbus(response_data)
@@ -28,6 +45,7 @@ def calc_crc16_modbus(buffer):
 
 #Тестовая функция формирования запросов
 def read_holding_test():
+    global ser
     if not is_testing:
         return
  
@@ -35,13 +53,6 @@ def read_holding_test():
     numbers_to_read = 1
  
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -75,6 +86,7 @@ def read_holding_test():
 
 #Функция чтения регистров с выводом в строку 
 def read_holding():
+    global ser
     if not is_logging:
         return
  
@@ -82,13 +94,13 @@ def read_holding():
     numbers_to_read = int(numbers_to_read_entry.get())
  
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
+        # ser = serial.Serial(
+        #     port=port,
+        #     baudrate=baudrate,
+        #     parity=parity,
+        #     stopbits=stopbits,
+        #     bytesize=bytesize,
+        # )
         ser.timeout = timeout
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
@@ -1108,10 +1120,7 @@ def auto_scroll():
     output.see("end")
     output.after(100, auto_scroll)
  
- 
-auto_scroll()
- 
- 
+
 starting_adress_label = Label(
     tab1,
     text="Стартовый адрес",
@@ -1479,7 +1488,8 @@ center_y = 10
 radius = 8
 circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="grey")
 
-
+auto_scroll()
 root.bind("<Configure>", resize_window)
 update_time()
+connection()
 root.mainloop()
