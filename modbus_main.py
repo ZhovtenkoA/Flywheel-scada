@@ -9,6 +9,7 @@ from serial_functions import *
 from secondary_functions import *
 import time
 
+ser = None
 
 #Тестовая функция формирования запросов
 def read_holding_test():
