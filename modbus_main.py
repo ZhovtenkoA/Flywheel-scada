@@ -908,7 +908,7 @@ def write_time():
 
 def convert_VDC(adc):
     V = adc * 0.01893310546 # V = (ADC*23.5*3.3) / 4096
-    V = round(V, 6)
+    V = round(V, 2)
     return V
 
 def resize_window(event):
