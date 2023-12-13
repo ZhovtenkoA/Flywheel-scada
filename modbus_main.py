@@ -9,29 +9,6 @@ from serial_functions import *
 import time
 
 
-def on_closing():
-    close_connection()
-    root.destroy()
-    
-#Функция проверки контрольной суммы
-def check_crc(response_crc, response_data):
-    calculated_crc = calc_crc16_modbus(response_data)
-    print(f"calculated_crc - {calculated_crc}")
-    print(f"response_crc - {response_crc}")
-    return response_crc == calculated_crc
-
-def calc_crc16_modbus(buffer):
-    crc = 0xFFFF
-    for byte in buffer:
-        crc ^= byte
-        for _ in range(8):
-            flag = crc & 0x0001
-            crc >>= 1
-            if flag:
-                crc ^= 0xA001
-    crc = ((crc & 0xFF) << 8) | ((crc & 0xFF00) >> 8)
-    return crc.to_bytes(2, byteorder='big')
-
 #Тестовая функция формирования запросов
 def read_holding_test():
     global ser
@@ -152,8 +129,6 @@ def write_holding():
         print(error_message)
         output.insert(END, error_message + "\n")
 
-
- 
 
 #Чтение регистров с выводом на основной экран
 def read_holding_30001_30014():
@@ -880,6 +855,10 @@ def convert_VDC(vdc):
     #0.01893310546
     V = round(V, 2)
     return V
+
+def on_closing():
+    close_connection()
+    root.destroy()
 
 def resize_window(event):
     window_width = root.winfo_width()
