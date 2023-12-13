@@ -9,7 +9,7 @@ from serial_functions import *
 from secondary_functions import *
 import time
 
-ser = None
+# ser = None
 
 #Тестовая функция формирования запросов
 def read_holding_test():
@@ -154,7 +154,6 @@ def read_holding_30001_30014():
         )
         crc_v = calc_crc16_modbus(request)
         request += crc_v
-        ser.write_timeout = timeout
         ser.write(request)
         try:
             response = ser.read(5 + numbers_to_read * 2)
