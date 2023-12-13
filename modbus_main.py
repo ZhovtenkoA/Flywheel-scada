@@ -265,7 +265,7 @@ def read_holding_30001_30014():
                         output_30014
                     ]
                     for i in range(numbers_to_read):
-                        if i == 13:
+                        if i == 12:
                             output_fields[i].delete(1.0, END)
                             output_fields[i].insert(END, f"{vdc}")
                         else:
