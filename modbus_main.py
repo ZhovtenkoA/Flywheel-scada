@@ -246,6 +246,11 @@ def read_holding_30001_30014():
                             accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
                         if i ==  10:
                             update_indicator_color(value)
+                        if i == 13:
+                            print('valeu 13{value}')
+                            vdc = convert_VDC(value)
+                            output_30013.delete(1.0, END)
+                            output_30013.insert(END, f"{vdc}")
                     output_fields = [
                         output_30001,
                         output_30002,
@@ -266,9 +271,6 @@ def read_holding_30001_30014():
                         if i == 12:
                             pass
                         if i == 13:
-                            vdc = convert_VDC(registers[i])
-                            output_fields[i-1].delete(1.0, END)
-                            output_fields[i-1].insert(END, f"{vdc}")
                             output_fields[i].delete(1.0, END)
                             output_fields[i].insert(END, f"{registers[i]}")
                         output_fields[i].delete(1.0, END)
