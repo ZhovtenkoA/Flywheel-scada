@@ -197,13 +197,14 @@ def read_holding_30001_30014():
             )
             crc_v = calc_crc16_modbus(request)
             request += crc_v
+            print(f"Request - {request}")
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
                 response_data = response[:-2]
                 response_crc = response[-2:]
                 if check_crc(response_crc, response_data):
-                    print(response)
+                    print(f"Response - {response}")
                     data_index = 3
                     registers = []
                     percentage_outputs = [
