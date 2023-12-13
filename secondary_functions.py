@@ -20,7 +20,7 @@ def accumulated_energy_kW_h(VDC, ADC, t2, t1):
 
 #Функция конвертации VDC -> V
 def convert_VDC(vdc):
-    V = (vdc*24.5*3.3) / 4096 
+    V = (vdc*24.4*3.3) / 4096 
     #0.01893310546
     V = round(V, 2)
     return V
