@@ -263,7 +263,7 @@ def read_holding_30001_30014():
                         output_30014]
                     for i in range(numbers_to_read):
                         if i == 12:
-                            converted_value = convert_VDC(adc = registers[i+1])
+                            converted_value = convert_VDC(vdc = registers[i])
                             print(f"converted {converted_value}")
                             output_fields[i].delete(1.0, END)
                             print(f"{output_fields[i]}")
@@ -906,8 +906,8 @@ def write_time():
         print(error_message)
         output.insert(END, error_message + "\n")
 
-def convert_VDC(adc):
-    V = adc * 0.01893310546 # V = (ADC*23.5*3.3) / 4096
+def convert_VDC(vdc):
+    V = vdc * 0.01893310546 # V = (ADC*23.5*3.3) / 4096
     V = round(V, 2)
     return V
 
