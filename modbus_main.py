@@ -263,9 +263,9 @@ def read_holding_30001_30014():
                         output_30014
                     ]
                     for i in range(numbers_to_read):
-                        if i == 13:
+                        if i == 12:
                             pass
-                        if i == 14:
+                        if i == 13:
                             convert_VDC(registers[i])
                             output_fields[i-1].delete(1.0, END)
                             output_fields[i-1].insert(END, f"{registers[i]}")
@@ -1371,7 +1371,7 @@ value_30012_label = Label(
 value_30012_label.place(x=10, y=280)
 value_30013_label = Label(
     tab4,
-    text="VDC",
+    text="Vdc",
     font=("Arial", 10, "bold"),
     foreground="white",
     background="#424242",
@@ -1379,7 +1379,7 @@ value_30013_label = Label(
 value_30013_label.place(x=10, y=320)
 value_30014_label = Label(
     tab4,
-    text="ADC",
+    text="Adc",
     font=("Arial", 10, "bold"),
     foreground="white",
     background="#424242",
