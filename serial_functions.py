@@ -1,6 +1,7 @@
 from connection_parameters import *
 import serial
 
+ser = None
 
 def connection():
     print("Starting connection...")

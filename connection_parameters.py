@@ -8,7 +8,7 @@ bytesize = 8  # Размер байта
 slave_id = 1
 timeout = 2
 
-ser = None
+
 
 is_reading = False
 is_testing = False
