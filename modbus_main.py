@@ -269,7 +269,8 @@ def read_holding_30001_30014():
                     ]
                     for i in range(numbers_to_read):
                         if i == 12:
-                            pass
+                            output_fields[i].delete(1.0, END)
+                            output_fields[i].insert(END, f"{vdc}")
                         else:
                             output_fields[i].delete(1.0, END)
                             output_fields[i].insert(END, f"{registers[i]}")
