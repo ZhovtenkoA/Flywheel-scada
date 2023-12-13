@@ -9,144 +9,157 @@ from serial_functions import *
 from secondary_functions import *
 import time
 
-ser = None
-def connection():
-    print("Starting connection...")
-    global ser
-    try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-            timeout = timeout
-        )
-        print("Соединение установлено")
-    except Exception as e:
-        print(f"Ошибка при установке соединения: {e}")
-
-def close_connection():
-    print("Closing connection...")
-    if ser is not None:
-        ser.close()
-
 
 #Тестовая функция формирования запросов
 def read_holding_test():
-    global ser
     if not is_testing:
         return
  
     register_address = 30001
     numbers_to_read = 1
-    current_time = datetime.now().strftime("%H:%M:%S")
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x4,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                numbers_to_read,
-            ]
-        )
-        print("отпрвка")
-        ser.write(request)
-        print("долбим")
-        output_test.insert(END, f"[{current_time}] долбим долбим долбим\n")
-
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
+        try:
+            request = bytearray(
+                [
+                    slave_id,
+                    0x4,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    numbers_to_read,
+                ]
+            )
+            print("отпрвка")
+            ser.write(request)
+            print("долбим")
+            output_test.insert(END, f"[{current_time}] долбим долбим долбим\n")
+        except Exception as e:
+            error_message = f"[{current_time}]Ошибка тестовой отправки запросов: {e}"
+            print(error_message)
+            output_test.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"[{current_time}]Ошибка тестовой отправки запросов: {e}"
         print(error_message)
         output_test.insert(END, error_message + "\n")
- 
+    
     if is_testing:
         root.after(1000, read_holding_test)
  
 
 #Функция чтения регистров с выводом в строку 
 def read_holding():
-    global ser
+
     if not is_logging:
         return
  
     register_address = int(starting_adress_entry.get())
     numbers_to_read = int(numbers_to_read_entry.get())
-
-    current_time = datetime.now().strftime("%H:%M:%S")
+    
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x4,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                numbers_to_read,
-            ]
-        )
-        ser.write(request)
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
         try:
-            response = ser.read(5 + numbers_to_read * 2)
-            print(response)
-            byte_count = response[2]
-            data_index = 3
-            registers = []
-            for i in range(numbers_to_read):
-                value = (response[data_index] << 8) + response[data_index + 1]
-                registers.append(value)
-                data_index += 2
-            register_type = "Input Register"
-            for i in range(numbers_to_read):
-                output.insert(
-                    END,
-                    f"[{current_time}] {register_type} -  Register {register_address + i} - value {registers[i]}\n",
-                )
-        except Exception as e:
-            error_message = (
-                f"[{current_time}] Ошибка получения ответа: {e}"
+            request = bytearray(
+                [
+                    slave_id,
+                    0x4,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    numbers_to_read,
+                ]
             )
+            ser.write(request)
+            try:
+                response = ser.read(5 + numbers_to_read * 2)
+                print(response)
+                byte_count = response[2]
+                data_index = 3
+                registers = []
+                for i in range(numbers_to_read):
+                    value = (response[data_index] << 8) + response[data_index + 1]
+                    registers.append(value)
+                    data_index += 2
+                register_type = "Input Register"
+                for i in range(numbers_to_read):
+                    output.insert(
+                        END,
+                        f"[{current_time}] {register_type} -  Register {register_address + i} - value {registers[i]}\n",
+                    )
+            except Exception as e:
+                error_message = (
+                    f"[{current_time}] Ошибка получения ответа: {e}"
+                )
+                print(error_message)
+                output.insert(END, error_message + "\n")
+        except Exception as e:
+            error_message = f"[{current_time}]Ошибка отправки запроса: {e}"
             print(error_message)
             output.insert(END, error_message + "\n")
     except Exception as e:
-        error_message = f"[{current_time}]Ошибка отправки запроса: {e}"
-        print(error_message)
-        output.insert(END, error_message + "\n")
-
+            error_message = f"[{current_time}]Ошибка отправки запроса: {e}"
+            print(error_message)
+            output.insert(END, error_message + "\n")
     if is_logging:
         root.after(1000, read_holding)
  
 
 #Запись значения в определенный регистр
 def write_holding():
-    global ser
+
     register_address = int(register_address_entry.get())
     value = int(value_entry.get())
-    current_time = datetime.now().strftime("%H:%M:%S")
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x10,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                0x01,
-                0x02,
-                (value >> 8) & 0xFF,
-                value & 0xFF,
-            ]
-        )
-        crc16 = crcmod.predefined.mkCrcFun("modbus")
-        crc_value = crc16(request)
-        request += crc_value.to_bytes(2, byteorder="big")
-        ser.write(request)
-        output.insert(
-            END,
-            f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
-        )
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
+        try:
+            request = bytearray(
+                [
+                    slave_id,
+                    0x10,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    0x01,
+                    0x02,
+                    (value >> 8) & 0xFF,
+                    value & 0xFF,
+                ]
+            )
+            crc16 = crcmod.predefined.mkCrcFun("modbus")
+            crc_value = crc16(request)
+            request += crc_value.to_bytes(2, byteorder="big")
+            ser.write(request)
+            output.insert(
+                END,
+                f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",)
+        except Exception as e:
+            error_message = f"[{current_time}] Ошибка отправки запроса на запись: {e}"
+            print(error_message)
+            output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"[{current_time}] Ошибка отправки запроса на запись: {e}"
         print(error_message)
@@ -155,82 +168,95 @@ def write_holding():
 
 #Чтение регистров с выводом на основной экран
 def read_holding_30001_30014():
-    global ser
+
     if not is_reading:
         return
  
     register_address = 30001
     numbers_to_read = 14
-    current_time = datetime.now().strftime("%H:%M:%S")
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x4,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                numbers_to_read,
-            ]
-        )
-        crc_v = calc_crc16_modbus(request)
-        request += crc_v
-        ser.write(request)
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
         try:
-            response = ser.read(5 + numbers_to_read * 2)
-            response_data = response[:-2]
-            response_crc = response[-2:]
-            if check_crc(response_crc, response_data):
-                print(response)
-                data_index = 3
-                registers = []
-                percentage_outputs = [
-                    output_30005_percent,
-                    output_30006_percent,
-                    output_30007_percent,
-                    output_30008_percent,
+            request = bytearray(
+                [
+                    slave_id,
+                    0x4,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    numbers_to_read,
                 ]
-                for i in range(numbers_to_read):
-                    value = (response[data_index] << 8) + response[data_index + 1]
-                    registers.append(value)
-                    data_index += 2
-                    if i >= 4 and i <= 7:
-                        output_percent = percentage_outputs[i - 4]
-                        percentage = convert_to_percentage(value)
-                        output_percent.delete(1.0, END)
-                        output_percent.insert(END, f"{percentage}%")
-                    
-                    if i == 8 and moment_of_inertia:
-                        kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
-                        accumulated_kinetic_energy_output.delete(1.0, END)
-                        accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
-                    if i ==  10:
-                        update_indicator_color(value)
-                output_fields = [
-                    output_30001,
-                    output_30002,
-                    output_30003,
-                    output_30004,
-                    output_30005,
-                    output_30006,
-                    output_30007,
-                    output_30008,
-                    output_30009,
-                    output_30010,
-                    output_30011, 
-                    output_30012,
-                    output_30013,
-                    output_30014]
-                for i in range(numbers_to_read):
-                    if i == 12:
-                        converted_value = convert_VDC(vdc = registers[i])
-                        output_fields[i].delete(1.0, END)
-                        output_fields[i].insert(END, f"{converted_value}")
-                    else:    
-                        output_fields[i].delete(1.0, END)
-                        output_fields[i].insert(END, f"{registers[i]}")
-            else:
-                error_message = f"[{current_time}]Ошибка контрольной суммы в ответе"
+            )
+            crc_v = calc_crc16_modbus(request)
+            request += crc_v
+            ser.write(request)
+            try:
+                response = ser.read(5 + numbers_to_read * 2)
+                response_data = response[:-2]
+                response_crc = response[-2:]
+                if check_crc(response_crc, response_data):
+                    print(response)
+                    data_index = 3
+                    registers = []
+                    percentage_outputs = [
+                        output_30005_percent,
+                        output_30006_percent,
+                        output_30007_percent,
+                        output_30008_percent,
+                    ]
+                    for i in range(numbers_to_read):
+                        value = (response[data_index] << 8) + response[data_index + 1]
+                        registers.append(value)
+                        data_index += 2
+                        if i >= 4 and i <= 7:
+                            output_percent = percentage_outputs[i - 4]
+                            percentage = convert_to_percentage(value)
+                            output_percent.delete(1.0, END)
+                            output_percent.insert(END, f"{percentage}%")
+                        
+                        if i == 8 and moment_of_inertia:
+                            kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
+                            accumulated_kinetic_energy_output.delete(1.0, END)
+                            accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
+                        if i ==  10:
+                            update_indicator_color(value)
+                    output_fields = [
+                        output_30001,
+                        output_30002,
+                        output_30003,
+                        output_30004,
+                        output_30005,
+                        output_30006,
+                        output_30007,
+                        output_30008,
+                        output_30009,
+                        output_30010,
+                        output_30011, 
+                        output_30012,
+                        output_30013,
+                        output_30014]
+                    for i in range(numbers_to_read):
+                        if i == 12:
+                            converted_value = convert_VDC(vdc = registers[i])
+                            output_fields[i].delete(1.0, END)
+                            output_fields[i].insert(END, f"{converted_value}")
+                        else:    
+                            output_fields[i].delete(1.0, END)
+                            output_fields[i].insert(END, f"{registers[i]}")
+                else:
+                    error_message = f"[{current_time}]Ошибка контрольной суммы в ответе"
+                    print(error_message)
+                    output.insert(END, error_message + "\n")
+            except Exception as e:
+                error_message = f"[{current_time}] Ошибка получения ответа "
                 print(error_message)
                 output.insert(END, error_message + "\n")
         except Exception as e:
@@ -248,79 +274,92 @@ def read_holding_30001_30014():
 
 #Функции управления PWM (разгон, торможение, стоп)
 def acceleration():
-    global ser
+
     register_address = 30005
     numbers_to_read = 1
-    current_time = datetime.now().strftime("%H:%M:%S")
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x4,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                numbers_to_read,
-            ]
-        )
-        crc_v = calc_crc16_modbus(request)
-        request += crc_v
-        ser.write_timeout = timeout
-        ser.write(request)
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
         try:
-            response = ser.read(5 + numbers_to_read * 2)
-            response_data = response[:-2]
-            response_crc = response[-2:]
-            if check_crc(response_crc, response_data):
-                print(response)
-                data_index = 3
-                value = (response[data_index] << 8) + response[data_index + 1]
-                register_to_write = 1
-                if value >= 1995:
-                    new_value = 2000
-                else:
-                    new_value = value + 5
-                try:
-                    ser = serial.Serial(
-                        port=port,
-                        baudrate=baudrate,
-                        parity=parity,
-                        stopbits=stopbits,
-                        bytesize=bytesize,
-                    )
-                    current_time = datetime.now().strftime("%H:%M:%S")
+            request = bytearray(
+                [
+                    slave_id,
+                    0x4,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    numbers_to_read,
+                ]
+            )
+            crc_v = calc_crc16_modbus(request)
+            request += crc_v
+            ser.write_timeout = timeout
+            ser.write(request)
+            try:
+                response = ser.read(5 + numbers_to_read * 2)
+                response_data = response[:-2]
+                response_crc = response[-2:]
+                if check_crc(response_crc, response_data):
+                    print(response)
+                    data_index = 3
+                    value = (response[data_index] << 8) + response[data_index + 1]
+                    register_to_write = 1
+                    if value >= 1995:
+                        new_value = 2000
+                    else:
+                        new_value = value + 5
                     try:
-                        request = bytearray(
-                            [
-                                slave_id,
-                                0x10,
-                                (register_to_write >> 8) & 0xFF,
-                                register_to_write & 0xFF,
-                                0x00,
-                                0x01,
-                                0x02,
-                                (new_value >> 8) & 0xFF,
-                                new_value & 0xFF,
-                            ]
+                        ser = serial.Serial(
+                            port=port,
+                            baudrate=baudrate,
+                            parity=parity,
+                            stopbits=stopbits,
+                            bytesize=bytesize,
                         )
-                        crc16 = crcmod.predefined.mkCrcFun("modbus")
-                        crc_value = crc16(request)
-                        request += crc_value.to_bytes(2, byteorder="big")
-                        ser.write(request)
+                        current_time = datetime.now().strftime("%H:%M:%S")
+                        try:
+                            request = bytearray(
+                                [
+                                    slave_id,
+                                    0x10,
+                                    (register_to_write >> 8) & 0xFF,
+                                    register_to_write & 0xFF,
+                                    0x00,
+                                    0x01,
+                                    0x02,
+                                    (new_value >> 8) & 0xFF,
+                                    new_value & 0xFF,
+                                ]
+                            )
+                            crc16 = crcmod.predefined.mkCrcFun("modbus")
+                            crc_value = crc16(request)
+                            request += crc_value.to_bytes(2, byteorder="big")
+                            ser.write(request)
+                        except Exception as e:
+                            error_message = (
+                                f"[{current_time}] Ошибка записи: {e}"
+                            )
+                            print(error_message)
+                            output.insert(END, error_message + "\n")
                     except Exception as e:
-                        error_message = (
-                            f"[{current_time}] Ошибка записи: {e}"
-                        )
+                        error_message = f"Ошибка чтения: {e}"
                         print(error_message)
                         output.insert(END, error_message + "\n")
-                except Exception as e:
-                    error_message = f"Ошибка чтения: {e}"
-                    print(error_message)
-                    output.insert(END, error_message + "\n")
+            except Exception as e:
+                error_message = f"[{current_time}]Ошибка получения ответа: {e}"
+                print(error_message)
+                output.insert(END, error_message + "\n")
         except Exception as e:
-            error_message = f"[{current_time}]Ошибка получения ответа: {e}"
-            print(error_message)
-            output.insert(END, error_message + "\n")
+                error_message = f"[{current_time}]Ошибка получения ответа: {e}"
+                print(error_message)
+                output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"[{current_time}] Ошибка отправки запроса на чтение: {e}"
         print(error_message)
@@ -328,72 +367,85 @@ def acceleration():
 
  
 def slowdown():
-    global ser
+
     register_address = 30005
     numbers_to_read = 1
-    current_time = datetime.now().strftime("%H:%M:%S")
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x4,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                numbers_to_read,
-            ]
-        )
-        crc_v = calc_crc16_modbus(request)
-        request += crc_v
-        ser.write_timeout = timeout
-        ser.write(request)
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
         try:
-            response = ser.read(5 + numbers_to_read * 2)
-            response_data = response[:-2]
-            response_crc = response[-2:]
-            if check_crc(response_crc, response_data):
-                print(response)
-                data_index = 3
-                value = (response[data_index] << 8) + response[data_index + 1]
-                register_to_write = 1
-                if value < 5:
-                    new_value = 0
-                else:
-                    new_value = value - 5
-                try:
-                    ser = serial.Serial(
-                        port=port,
-                        baudrate=baudrate,
-                        parity=parity,
-                        stopbits=stopbits,
-                        bytesize=bytesize,
-                    )
-                    current_time = datetime.now().strftime("%H:%M:%S")
+            request = bytearray(
+                [
+                    slave_id,
+                    0x4,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    numbers_to_read,
+                ]
+            )
+            crc_v = calc_crc16_modbus(request)
+            request += crc_v
+            ser.write_timeout = timeout
+            ser.write(request)
+            try:
+                response = ser.read(5 + numbers_to_read * 2)
+                response_data = response[:-2]
+                response_crc = response[-2:]
+                if check_crc(response_crc, response_data):
+                    print(response)
+                    data_index = 3
+                    value = (response[data_index] << 8) + response[data_index + 1]
+                    register_to_write = 1
+                    if value < 5:
+                        new_value = 0
+                    else:
+                        new_value = value - 5
                     try:
-                        request = bytearray(
-                            [
-                                slave_id,
-                                0x10,
-                                (register_to_write >> 8) & 0xFF,
-                                register_to_write & 0xFF,
-                                0x00,
-                                0x01,
-                                0x02,
-                                (new_value >> 8) & 0xFF,
-                                new_value & 0xFF,
-                            ]
+                        ser = serial.Serial(
+                            port=port,
+                            baudrate=baudrate,
+                            parity=parity,
+                            stopbits=stopbits,
+                            bytesize=bytesize,
                         )
-                        crc16 = crcmod.predefined.mkCrcFun("modbus")
-                        crc_value = crc16(request)
-                        request += crc_value.to_bytes(2, byteorder="big")
-                        ser.write(request)
+                        current_time = datetime.now().strftime("%H:%M:%S")
+                        try:
+                            request = bytearray(
+                                [
+                                    slave_id,
+                                    0x10,
+                                    (register_to_write >> 8) & 0xFF,
+                                    register_to_write & 0xFF,
+                                    0x00,
+                                    0x01,
+                                    0x02,
+                                    (new_value >> 8) & 0xFF,
+                                    new_value & 0xFF,
+                                ]
+                            )
+                            crc16 = crcmod.predefined.mkCrcFun("modbus")
+                            crc_value = crc16(request)
+                            request += crc_value.to_bytes(2, byteorder="big")
+                            ser.write(request)
+                        except Exception as e:
+                            error_message = (
+                                f"[{current_time}] Error writing to Holding Register: {e}"
+                            )
+                            print(error_message)
+                            output.insert(END, error_message + "\n")
                     except Exception as e:
-                        error_message = (
-                            f"[{current_time}] Error writing to Holding Register: {e}"
-                        )
+                        error_message = f"Error reading Modbus RTU: {e}"
                         print(error_message)
                         output.insert(END, error_message + "\n")
-                except Exception as e:
+            except Exception as e:
                     error_message = f"Error reading Modbus RTU: {e}"
                     print(error_message)
                     output.insert(END, error_message + "\n")
@@ -408,32 +460,45 @@ def slowdown():
 
  
 def shutdown():
-    global ser
+
     register_address = 1
     value = 0
-    current_time = datetime.now().strftime("%H:%M:%S")
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x10,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                0x01,
-                0x02,
-                (value >> 8) & 0xFF,
-                value & 0xFF,
-            ]
-        )
-        crc16 = crcmod.predefined.mkCrcFun("modbus")
-        crc_value = crc16(request)
-        request += crc_value.to_bytes(2, byteorder="big")
-        ser.write(request)
-        output.insert(
-            END,
-            f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
-        )
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
+        try:
+            request = bytearray(
+                [
+                    slave_id,
+                    0x10,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    0x01,
+                    0x02,
+                    (value >> 8) & 0xFF,
+                    value & 0xFF,
+                ]
+            )
+            crc16 = crcmod.predefined.mkCrcFun("modbus")
+            crc_value = crc16(request)
+            request += crc_value.to_bytes(2, byteorder="big")
+            ser.write(request)
+            output.insert(
+                END,
+                f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
+            )
+        except Exception as e:
+            error_message = f"[{current_time}] Error writing to Holding Register: {e}"
+            print(error_message)
+            output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"[{current_time}] Error writing to Holding Register: {e}"
         print(error_message)
@@ -443,72 +508,86 @@ def shutdown():
  
 #Функции управления Trashhold
 def trh_plus():
-    global ser
+
     register_address = 30011
     numbers_to_read = 1
-    current_time = datetime.now().strftime("%H:%M:%S")
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x4,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                numbers_to_read,
-            ]
-        )
-        crc_v = calc_crc16_modbus(request)
-        request += crc_v
-        ser.write_timeout = timeout
-        ser.write(request)
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
         try:
-            response = ser.read(5 + numbers_to_read * 2)
-            response_data = response[:-2]
-            response_crc = response[-2:]
-            if check_crc(response_crc, response_data):
-                print(response)
-                data_index = 3
-                value = (response[data_index] << 8) + response[data_index + 1]
-                register_to_write = 2
-                new_value = value + 20
-                try:
-                    ser = serial.Serial(
-                        port=port,
-                        baudrate=baudrate,
-                        parity=parity,
-                        stopbits=stopbits,
-                        bytesize=bytesize,
-                    )
-                    current_time = datetime.now().strftime("%H:%M:%S")
+            request = bytearray(
+                [
+                    slave_id,
+                    0x4,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    numbers_to_read,
+                ]
+            )
+            crc_v = calc_crc16_modbus(request)
+            request += crc_v
+            ser.write_timeout = timeout
+            ser.write(request)
+            try:
+                response = ser.read(5 + numbers_to_read * 2)
+                response_data = response[:-2]
+                response_crc = response[-2:]
+                if check_crc(response_crc, response_data):
+                    print(response)
+                    data_index = 3
+                    value = (response[data_index] << 8) + response[data_index + 1]
+                    register_to_write = 2
+                    new_value = value + 20
                     try:
-                        request = bytearray(
-                            [
-                                slave_id,
-                                0x10,
-                                (register_to_write >> 8) & 0xFF,
-                                register_to_write & 0xFF,
-                                0x00,
-                                0x01,
-                                0x02,
-                                (new_value >> 8) & 0xFF,
-                                new_value & 0xFF,
-                            ]
+                        ser = serial.Serial(
+                            port=port,
+                            baudrate=baudrate,
+                            parity=parity,
+                            stopbits=stopbits,
+                            bytesize=bytesize,
                         )
-                        crc16 = crcmod.predefined.mkCrcFun("modbus")
-                        crc_value = crc16(request)
-                        request += crc_value.to_bytes(2, byteorder="big")
-                        ser.write(request)
+                        current_time = datetime.now().strftime("%H:%M:%S")
+                        try:
+                            request = bytearray(
+                                [
+                                    slave_id,
+                                    0x10,
+                                    (register_to_write >> 8) & 0xFF,
+                                    register_to_write & 0xFF,
+                                    0x00,
+                                    0x01,
+                                    0x02,
+                                    (new_value >> 8) & 0xFF,
+                                    new_value & 0xFF,
+                                ]
+                            )
+                            crc16 = crcmod.predefined.mkCrcFun("modbus")
+                            crc_value = crc16(request)
+                            request += crc_value.to_bytes(2, byteorder="big")
+                            ser.write(request)
+                        except Exception as e:
+                            error_message = (
+                                f"[{current_time}] Error writing to Holding Register: {e}"
+                            )
+                            print(error_message)
+                            output.insert(END, error_message + "\n")
                     except Exception as e:
-                        error_message = (
-                            f"[{current_time}] Error writing to Holding Register: {e}"
-                        )
+                        error_message = f"Error reading Modbus RTU: {e}"
                         print(error_message)
                         output.insert(END, error_message + "\n")
-                except Exception as e:
-                    error_message = f"Error reading Modbus RTU: {e}"
-                    print(error_message)
-                    output.insert(END, error_message + "\n")
+            except Exception as e:
+                error_message = f"[{current_time}]Error reading input Register: {e}"
+                print(error_message)
+                output.insert(END, error_message + "\n")
+
         except Exception as e:
             error_message = f"[{current_time}]Error reading input Register: {e}"
             print(error_message)
@@ -520,72 +599,85 @@ def trh_plus():
 
  
 def trh_minus():
-    global ser
+
     register_address = 30011
     numbers_to_read = 1
-    current_time = datetime.now().strftime("%H:%M:%S")
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x4,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                numbers_to_read,
-            ]
-        )
-        crc_v = calc_crc16_modbus(request)
-        request += crc_v
-        ser.write_timeout = timeout
-        ser.write(request)
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
         try:
-            response = ser.read(5 + numbers_to_read * 2)
-            response_data = response[:-2]
-            response_crc = response[-2:]
-            if check_crc(response_crc, response_data):
-                print(response)
-                data_index = 3
-                value = (response[data_index] << 8) + response[data_index + 1]
-                register_to_write = 2
-                new_value = value - 20
-                try:
-                    ser = serial.Serial(
-                        port=port,
-                        baudrate=baudrate,
-                        parity=parity,
-                        stopbits=stopbits,
-                        bytesize=bytesize,
-                    )
-                    current_time = datetime.now().strftime("%H:%M:%S")
+            request = bytearray(
+                [
+                    slave_id,
+                    0x4,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    numbers_to_read,
+                ]
+            )
+            crc_v = calc_crc16_modbus(request)
+            request += crc_v
+            ser.write_timeout = timeout
+            ser.write(request)
+            try:
+                response = ser.read(5 + numbers_to_read * 2)
+                response_data = response[:-2]
+                response_crc = response[-2:]
+                if check_crc(response_crc, response_data):
+                    print(response)
+                    data_index = 3
+                    value = (response[data_index] << 8) + response[data_index + 1]
+                    register_to_write = 2
+                    new_value = value - 20
                     try:
-                        request = bytearray(
-                            [
-                                slave_id,
-                                0x10,
-                                (register_to_write >> 8) & 0xFF,
-                                register_to_write & 0xFF,
-                                0x00,
-                                0x01,
-                                0x02,
-                                (new_value >> 8) & 0xFF,
-                                new_value & 0xFF,
-                            ]
+                        ser = serial.Serial(
+                            port=port,
+                            baudrate=baudrate,
+                            parity=parity,
+                            stopbits=stopbits,
+                            bytesize=bytesize,
                         )
-                        crc16 = crcmod.predefined.mkCrcFun("modbus")
-                        crc_value = crc16(request)
-                        request += crc_value.to_bytes(2, byteorder="big")
-                        ser.write(request)
+                        current_time = datetime.now().strftime("%H:%M:%S")
+                        try:
+                            request = bytearray(
+                                [
+                                    slave_id,
+                                    0x10,
+                                    (register_to_write >> 8) & 0xFF,
+                                    register_to_write & 0xFF,
+                                    0x00,
+                                    0x01,
+                                    0x02,
+                                    (new_value >> 8) & 0xFF,
+                                    new_value & 0xFF,
+                                ]
+                            )
+                            crc16 = crcmod.predefined.mkCrcFun("modbus")
+                            crc_value = crc16(request)
+                            request += crc_value.to_bytes(2, byteorder="big")
+                            ser.write(request)
+                        except Exception as e:
+                            error_message = (
+                                f"[{current_time}] Error writing to Holding Register: {e}"
+                            )
+                            print(error_message)
+                            output.insert(END, error_message + "\n")
                     except Exception as e:
-                        error_message = (
-                            f"[{current_time}] Error writing to Holding Register: {e}"
-                        )
+                        error_message = f"Error reading Modbus RTU: {e}"
                         print(error_message)
                         output.insert(END, error_message + "\n")
-                except Exception as e:
-                    error_message = f"Error reading Modbus RTU: {e}"
-                    print(error_message)
-                    output.insert(END, error_message + "\n")
+            except Exception as e:
+                error_message = f"[{current_time}]Error reading input Register: {e}"
+                print(error_message)
+                output.insert(END, error_message + "\n")
         except Exception as e:
             error_message = f"[{current_time}]Error reading input Register: {e}"
             print(error_message)
@@ -597,32 +689,45 @@ def trh_minus():
 
  
 def trh_write():
-    global ser
+
     register_address = 2
     value = int(value_trh_entry.get())
-    current_time = datetime.now().strftime("%H:%M:%S")
     try:
-        request = bytearray(
-            [
-                slave_id,
-                0x10,
-                (register_address >> 8) & 0xFF,
-                register_address & 0xFF,
-                0x00,
-                0x01,
-                0x02,
-                (value >> 8) & 0xFF,
-                value & 0xFF,
-            ]
-        )
-        crc16 = crcmod.predefined.mkCrcFun("modbus")
-        crc_value = crc16(request)
-        request += crc_value.to_bytes(2, byteorder="big")
-        ser.write(request)
-        output.insert(
-            END,
-            f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
-        )
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
+        try:
+            request = bytearray(
+                [
+                    slave_id,
+                    0x10,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    0x01,
+                    0x02,
+                    (value >> 8) & 0xFF,
+                    value & 0xFF,
+                ]
+            )
+            crc16 = crcmod.predefined.mkCrcFun("modbus")
+            crc_value = crc16(request)
+            request += crc_value.to_bytes(2, byteorder="big")
+            ser.write(request)
+            output.insert(
+                END,
+                f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
+            )
+        except Exception as e:
+            error_message = f"[{current_time}] Error writing to Holding Register: {e}"
+            print(error_message)
+            output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"[{current_time}] Error writing to Holding Register: {e}"
         print(error_message)
@@ -698,10 +803,18 @@ def update_indicator_color(value):
 
 #Черновик функции получения киловатт*ч
 def make_kW_h():
-    global ser
+
     register_address = 30013
     numbers_to_read = 4
-    try:    
+    try:
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
         current_time = datetime.now()
         current_hour = current_time.hour
         current_minute = current_time.minute
@@ -781,9 +894,16 @@ def make_kW_h():
 
 #Черновик функции записи времени
 def write_time():
-    global ser
     print("writing time")
     try:
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
         current_time = datetime.now()
         print(f"current_time {current_time}")
         current_hour = current_time.hour
@@ -858,9 +978,6 @@ def write_time():
         output.insert(END, error_message + "\n")
 
 
-def on_closing():
-    close_connection()
-    root.destroy()
 
 def resize_window(event):
     window_width = root.winfo_width()
@@ -1372,10 +1489,8 @@ circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + 
 
 
 
-root.protocol("WM_DELETE_WINDOW", on_closing)
+
 auto_scroll()
 root.bind("<Configure>", resize_window)
 update_time()
-connection()
-print(ser)
 root.mainloop()
