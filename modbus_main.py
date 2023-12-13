@@ -267,8 +267,8 @@ def read_holding_30001_30014():
                             pass
                         if i == 13:
                             convert_VDC(registers[i])
-                            output_fields[i+1].delete(1.0, END)
-                            output_fields[i+1].insert(END, f"{registers[i]}")
+                            output_fields[i-1].delete(1.0, END)
+                            output_fields[i-1].insert(END, f"{registers[i]}")
                             output_fields[i].delete(1.0, END)
                             output_fields[i].insert(END, f"{registers[i]}")
                         output_fields[i].delete(1.0, END)
