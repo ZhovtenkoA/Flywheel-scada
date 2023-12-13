@@ -6,6 +6,7 @@ import crcmod.predefined
 from ttkthemes import ThemedTk
 from connection_parameters import *
 from serial_functions import *
+from secondary_functions import *
 import time
 
 
@@ -652,17 +653,7 @@ def clear_output():
     output.delete(1.0, END)
  
 
-#Преобразование в процент 
-def convert_to_percentage(value):
-    return (value * 100) / 2000
-
-#Расчет накопленной кинетической энергии
-def accumulated_kinetic_energy(moment_of_innertia, rpm):
-    axillar_speed = (rpm*3.14)/30
-    kinetic_energy = float(moment_of_innertia)*(axillar_speed **2/2)
-    kinetic_energy = round(kinetic_energy, 2)
-    return kinetic_energy
-
+#Запись момента иннерции
 def write_moment_of_inertia():
     global moment_of_inertia
     moment_of_inertia = inertia_value_entry.get()
@@ -684,14 +675,7 @@ def update_indicator_color(value):
         indicator.itemconfig(circle, fill="red")
 
 
-#Расчет Accumulated Energy, кВт*ч
-def accumulated_energy_kW_h(VDC, ADC, t2, t1):
-    time_diff = datetime.combine(datetime.date.today(), t2) - datetime.combine(datetime.date.today(), t1)
-    seconds = time_diff.total_seconds()
-    kW_h = VDC * ADC * seconds/ 3600
-    return kW_h
-
-
+#Черновик функции получения киловатт*ч
 def make_kW_h():
     global ser
     register_address = 30013
@@ -773,6 +757,8 @@ def make_kW_h():
         print(error_message)
         output.insert(END, error_message + "\n")
 
+
+#Черновик функции записи времени
 def write_time():
     global ser
     print("writing time")
@@ -850,11 +836,6 @@ def write_time():
         print(error_message)
         output.insert(END, error_message + "\n")
 
-def convert_VDC(vdc):
-    V = (vdc*24.5*3.3) / 4096 
-    #0.01893310546
-    V = round(V, 2)
-    return V
 
 def on_closing():
     close_connection()
