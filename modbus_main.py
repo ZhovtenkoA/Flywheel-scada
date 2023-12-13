@@ -264,7 +264,9 @@ def read_holding_30001_30014():
                     for i in range(numbers_to_read):
                         if i == 13:
                             converted_value = convert_VDC(registers[i+1])
+                            print(f"converted {converted_value}")
                             output_fields[i].delete(1.0, END)
+                            print(f"{output_fields[i]}")
                             output_fields[i].insert(END, f"{converted_value}")
                         else:    
                             output_fields[i].delete(1.0, END)
