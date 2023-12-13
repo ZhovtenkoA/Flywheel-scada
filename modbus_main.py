@@ -125,7 +125,7 @@ def read_holding():
                     value = (response[data_index] << 8) + response[data_index + 1]
                     registers.append(value)
                     data_index += 2
-                ser.close()
+                # ser.close()
                 register_type = "Input Register"
                 for i in range(numbers_to_read):
                     output.insert(
