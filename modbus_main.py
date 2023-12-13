@@ -436,17 +436,11 @@ def slowdown():
         output.insert(END, error_message + "\n")
  
 def shutdown():
+    global ser
     register_address = 1
     value = 0
  
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -466,7 +460,6 @@ def shutdown():
             crc_value = crc16(request)
             request += crc_value.to_bytes(2, byteorder="big")
             ser.write(request)
-            ser.close()
             output.insert(
                 END,
                 f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
@@ -483,17 +476,11 @@ def shutdown():
  
 #Функции управления Trashhold
 def trh_plus():
+    global ser
     register_address = 30011
     numbers_to_read = 1
  
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -540,7 +527,6 @@ def trh_plus():
                     crc_value = crc16(request)
                     request += crc_value.to_bytes(2, byteorder="big")
                     ser.write(request)
-                    ser.close()
                 except Exception as e:
                     error_message = (
                         f"[{current_time}] Error writing to Holding Register: {e}"
@@ -561,17 +547,11 @@ def trh_plus():
         output.insert(END, error_message + "\n")
  
 def trh_minus():
+    global ser
     register_address = 30011
     numbers_to_read = 1
  
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -618,7 +598,6 @@ def trh_minus():
                     crc_value = crc16(request)
                     request += crc_value.to_bytes(2, byteorder="big")
                     ser.write(request)
-                    ser.close()
                 except Exception as e:
                     error_message = (
                         f"[{current_time}] Error writing to Holding Register: {e}"
@@ -639,17 +618,11 @@ def trh_minus():
         output.insert(END, error_message + "\n")
  
 def trh_write():
+    global ser
     register_address = 2
     value = int(value_trh_entry.get())
  
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
         current_time = datetime.now().strftime("%H:%M:%S")
         try:
             request = bytearray(
@@ -669,7 +642,6 @@ def trh_write():
             crc_value = crc16(request)
             request += crc_value.to_bytes(2, byteorder="big")
             ser.write(request)
-            ser.close()
             output.insert(
                 END,
                 f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
@@ -770,17 +742,10 @@ def accumulated_energy_kW_h(VDC, ADC, t2, t1):
 
 
 def make_kW_h():
+    global ser
     register_address = 30013
     numbers_to_read = 4
-    try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-        )
-        
+    try:    
         current_time = datetime.now()
         current_hour = current_time.hour
         current_minute = current_time.minute
@@ -815,8 +780,6 @@ def make_kW_h():
             crc_value = crc16(request)
             request += crc_value.to_bytes(2, byteorder="big")
             ser.write(request)
-            
-            ser.close()
             try:
                 request = bytearray(
                     [
@@ -860,17 +823,9 @@ def make_kW_h():
         output.insert(END, error_message + "\n")
 
 def write_time():
+    global ser
     print("writing time")
     try:
-        ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-            timeout=timeout
-        )
-
         current_time = datetime.now()
         print(f"current_time {current_time}")
         current_hour = current_time.hour
@@ -934,10 +889,6 @@ def write_time():
             error_message = f"[{current_time}] Error writing time: {e}"
             print(error_message)
             output.insert(END, error_message + "\n")
-
-        finally:
-            ser.close()
-
     except serial.SerialException as e:
         error_message = f"Serial port error: {e}"
         print(error_message)
