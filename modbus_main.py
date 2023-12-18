@@ -254,7 +254,7 @@ def read_holding_30001_30014():
                             converted_adc = convert_ADC(adc = registers[i])
                             output_fields[i].delete(1.0, END)
                             output_fields[i].insert(END, f"{converted_adc}")
-                            
+
                         else:    
                             output_fields[i].delete(1.0, END)
                             output_fields[i].insert(END, f"{registers[i]}")
@@ -1072,7 +1072,7 @@ output_30008 = Text(tab4) #PWM4
 output_30008.place(x=350, y=130, width=60, height=25)
  
 output_30009 = Text(tab4) #RPM
-output_30009.place(x=150, y=400, width=60, height=25)
+output_30009.place(x=150, y=400, width=80, height=25)
  
 output_30010 = Text(tab4) #freq
 output_30010.place(x=150, y=200, width=60, height=25)
@@ -1087,7 +1087,7 @@ output_30013 = Text(tab4) #VDC
 output_30013.place(x=150, y=320, width=60, height=25)
 
 output_30014 = Text(tab4) #ADC
-output_30014.place(x=150, y=360, width=60, height=25)
+output_30014.place(x=150, y=360, width=80, height=25)
  
  
 output_30005_percent = Text(tab4)
