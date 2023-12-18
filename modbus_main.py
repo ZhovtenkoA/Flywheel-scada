@@ -12,6 +12,7 @@ import time
 
 pwm = None
 
+
 #Тестовая функция формирования запросов
 def read_holding_test():
     if not is_testing:
