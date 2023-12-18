@@ -249,6 +249,10 @@ def read_holding_30001_30014():
                             converted_value = convert_VDC(vdc = registers[i])
                             output_fields[i].delete(1.0, END)
                             output_fields[i].insert(END, f"{converted_value}")
+                        if i == 13:
+                            converted_adc = convert_ADC(adc = registers[i])
+                            output_fields[i].delete(1.0, END)
+                            output_fields[i].insert(END, f"{converted_adc}")
                         else:    
                             output_fields[i].delete(1.0, END)
                             output_fields[i].insert(END, f"{registers[i]}")
@@ -1487,8 +1491,6 @@ center_x = 10
 center_y = 10
 radius = 8
 circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="grey")
-
-
 
 
 auto_scroll()

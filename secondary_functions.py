@@ -1,5 +1,7 @@
 from datetime import datetime
 
+adc0 = 1174
+
 #Преобразование в процент 
 def convert_to_percentage(value):
     return (value * 100) / 2000
@@ -24,3 +26,10 @@ def convert_VDC(vdc):
     #0.01893310546
     V = round(V, 2)
     return V
+
+#Функция конвертации ADC -> A
+def convert_ADC(adc):
+    #A = ((adc - adc0) * 3.3) / 4096 * 10/6.2 * 1/0.00133
+    A = (adc - adc0) * 330 / 33,775
+    A = round(A, 2)
+    return A
