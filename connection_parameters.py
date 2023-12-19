@@ -8,6 +8,9 @@ bytesize = 8  # Размер байта
 slave_id = 1
 timeout = 2
 
+power_accumulated = 0
+counting_in_progress = False
+
 
 
 is_reading = False

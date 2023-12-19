@@ -827,16 +827,25 @@ def update_indicator_color(value):
         indicator.itemconfig(circle, fill="red")
 
 
-def update_remaining_time(remaining_seconds):
+def update_power_output(power):
     kW_power_output.delete(1.0, END)
-    kW_power_output.insert(END, f"{remaining_seconds}s remaining")
+    kW_power_output.insert(END, f"{power} W")
+
+
+def start_counting_w_h():
+    global counting_in_progress, power_accumulated
+    if counting_in_progress:
+        counting_in_progress = False
+        power_accumulated = 0
+        kW_power_output.delete(1.0, END)
+    else:
+        counting_in_progress = True
+        make_W_h()
 
 #Черновик функции получения киловатт*ч
-def make_kW_h():
+def make_W_h():
     register_address = 30013
     numbers_to_read = 2
-    power_accumulated = 0
-    current_time = time.strftime("%H:%M:%S")
     try:
         ser = serial.Serial(
         port=port,
@@ -846,73 +855,59 @@ def make_kW_h():
         bytesize=bytesize,
         timeout = timeout,
     )
-        start_time = datetime.now()
-        end_time = start_time + timedelta(seconds=10)
-        remaining_time = end_time - datetime.now()
-        remaining_seconds = int(remaining_time.total_seconds())
-
         def read_registers():
-                    nonlocal power_accumulated, remaining_seconds
-                    try:
-                        request = bytearray(
-                            [
-                                slave_id,
-                                0x4,
-                                (register_address >> 8) & 0xFF,
-                                register_address & 0xFF,
-                                0x00,
-                                numbers_to_read,
-                            ]
-                        )
-                        crc_v = calc_crc16_modbus(request)
-                        request += crc_v
-                        ser.write(request)
-                        
-                        try:
-                            response = ser.read(5 + numbers_to_read * 2)
-                            response_data = response[:-2]
-                            response_crc = response[-2:]
-                            
-                            if check_crc(response_crc, response_data):
-                                data_index = 3
-                                registers = []
-                                
-                                for i in range(numbers_to_read):
-                                    value = (response[data_index] << 8) + response[data_index + 1]
-                                    registers.append(value)
-                                    data_index += 2
-                                    
-                                    if i == 0:
-                                        converted_vdc = convert_VDC(vdc=value)
-                                    elif i == 1:
-                                        converted_adc = convert_ADC(adc=value)
-                                        power = make_P(adc=converted_adc, vdc=converted_vdc)
-                                        power_accumulated += power * (1 / 3600)
-                                        
-                        except Exception as e:
-                            error_message = f"[{current_time}] Error writing to Holding Register: {e}"
-                            print(error_message)
-                            output.insert(END, error_message + "\n")
-                        
-                        remaining_time = end_time - datetime.now()
-                        remaining_seconds = int(remaining_time.total_seconds())
-                        update_remaining_time(remaining_seconds)
-                        
-                        if remaining_seconds > 0:
-                            root.after(1000, read_registers)
-                        else:
-                            power_accumulated = round(power_accumulated, 4)
-                            print(f"Total power consumed: {power_accumulated} kW*h")
-                            kW_power_output.delete(1.0, END)
-                            kW_power_output.insert(END, f"{power_accumulated} kW*h")
+            global power_accumulated, counting_in_progress
+            try:
+                ser = serial.Serial(
+                    port=port,
+                    baudrate=baudrate,
+                    parity=parity,
+                    stopbits=stopbits,
+                    bytesize=bytesize,
+                    timeout=timeout,
+                )
                 
-                    except Exception as e:
-                        error_message = f"[{current_time}] Error reading input Register: {e}"
-                        print(error_message)
-                        output.insert(END, error_message + "\n")
+                request = bytearray(
+                    [
+                        slave_id,
+                        0x4,
+                        (register_address >> 8) & 0xFF,
+                        register_address & 0xFF,
+                        0x00,
+                        numbers_to_read,
+                    ]
+                )
+                crc_v = calc_crc16_modbus(request)
+                request += crc_v
+                ser.write(request)
                 
-        read_registers()
-    
+                response = ser.read(5 + numbers_to_read * 2)
+                response_data = response[:-2]
+                response_crc = response[-2:]
+                
+                if check_crc(response_crc, response_data):
+                    data_index = 3
+                    registers = []
+                    
+                    for i in range(numbers_to_read):
+                        value = (response[data_index] << 8) + response[data_index + 1]
+                        registers.append(value)
+                        data_index += 2
+                        
+                        if i == 0:
+                            converted_vdc = convert_VDC(vdc=value)
+                        elif i == 1:
+                            converted_adc = convert_ADC(adc=value)
+                            power = make_P(adc=converted_adc, vdc=converted_vdc)
+                            power_accumulated += power * (1 / 3600)
+                    
+                    update_power_output(power_accumulated)
+            except Exception as e:
+                error_message = f"Error reading Modbus RTU: {e}"
+                print(error_message)
+                output.insert(END, error_message + "\n")
+            if counting_in_progress:
+                root.after(5000, read_registers)
     except Exception as e:
         error_message = f"Error reading Modbus RTU: {e}"
         print(error_message)
@@ -1302,8 +1297,8 @@ write_inertia_value_button.place(x=520, y=440, width=100, height=25)
 #Кнока расчета киловатт*ч
 kW_power_button = Button(
     tab4,
-    text="Рассчет kW*h",
-    command=make_kW_h,
+    text="Рассчет W*h",
+    command=start_counting_w_h,
     font=("Arial", 10, "bold"),
     foreground="black",
 )
