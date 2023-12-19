@@ -843,7 +843,7 @@ def make_kW_h():
         timeout = timeout,
     )
         start_time = datetime.now()
-        end_time = start_time + timedelta(seconds=5)
+        end_time = start_time + timedelta(seconds=10)
         n = 6
         while datetime.now() < end_time:
 
@@ -879,7 +879,7 @@ def make_kW_h():
                                 converted_adc = convert_ADC(adc = value)
                                 power = make_P(adc= converted_adc, vdc= converted_vdc)
                                 power_accumulated += power * (1 / 3600)
-                                print(f'Считаем...{n - 1}')
+                                print(f'Считаем...')
                 except Exception as e:
                     error_message = f"[{current_time}] Error writing to Holding Register: {e}"
                     print(error_message)
