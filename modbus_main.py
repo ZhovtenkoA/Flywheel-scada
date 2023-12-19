@@ -879,18 +879,18 @@ def make_kW_h():
                                 converted_adc = convert_ADC(adc = value)
                                 power = make_P(adc= converted_adc, vdc= converted_vdc)
                                 power_accumulated += power * (1 / 3600)
+                                print(f'Считаем...{n - 1}')
                 except Exception as e:
                     error_message = f"[{current_time}] Error writing to Holding Register: {e}"
                     print(error_message)
                     output.insert(END, error_message + "\n")
-                print(f'Считаем...{n - 1}')
                 time.sleep(1)         
             except Exception as e:
                 error_message = f"[{current_time}] Error reading input Register: {e}"
                 print(error_message)
                 output.insert(END, error_message + "\n")
 
-        power_accumulated = round(power_accumulated, 2)
+        power_accumulated = round(power_accumulated, 4)
         print(f"Total power consumed: {power_accumulated} kW*h")
         kW_power_output.delete(1.0, END)
         kW_power_output.insert(END, f"{power_accumulated}kW*h")
@@ -1107,7 +1107,7 @@ accumulated_kinetic_energy_output = Text(tab4)
 accumulated_kinetic_energy_output.place(x=150, y=440, width=80, height=25)
 
 kW_power_output = Text(tab4)
-kW_power_output.place(x=350, y=320, width=80, height=25)
+kW_power_output.place(x=350, y=320, width=120, height=25)
 
 P_output = Text(tab4)
 P_output.place(x=150, y=480, width=80, height=25)
@@ -1289,7 +1289,7 @@ kW_power_button = Button(
     foreground="black",
 )
 kW_power_button.pack()
-kW_power_button.place(x=440, y=320, width=100, height=25)
+kW_power_button.place(x=480, y=320, width=100, height=25)
  
 clear_button = Button(
     tab1,
