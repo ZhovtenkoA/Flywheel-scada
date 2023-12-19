@@ -9,8 +9,34 @@ from serial_functions import *
 from secondary_functions import *
 import time
 
+import threading
+import queue
+
+
+def on_closing():
+    # Зупинити процеси і виконати необхідні дії перед закриттям програми
+    # Наприклад, встановити флаг для завершення циклу в процесі обробки черги
+    # або зупинити відповідні процеси
+    # ...
+
+    root.destroy()  # Закрити головне вікно Tkinter
+
+task_queue = queue.Queue()
 
 pwm = None
+
+def main_thread():
+    auto_scroll()
+    root.bind("<Configure>", resize_window)
+    update_time()
+    root.mainloop()
+
+
+def process_queue():
+    while True:
+        task = task_queue.get()  # Отримати завдання з черги
+        task()  # Викликати функцію, що містить запит
+        task_queue.task_done()  # Позначити завдання як виконане
 
 
 #Тестовая функция формирования запросов
@@ -19,41 +45,7 @@ def read_holding_test():
     if not is_testing:
         return
  
-    register_address = 30001
-    numbers_to_read = 1
-    try:
-        ser = serial.Serial(
-        port=port,
-        baudrate=baudrate,
-        parity=parity,
-        stopbits=stopbits,
-        bytesize=bytesize,
-        timeout = timeout,
-    )
-        
-        try:
-            request = bytearray(
-                [
-                    slave_id,
-                    0x4,
-                    (register_address >> 8) & 0xFF,
-                    register_address & 0xFF,
-                    0x00,
-                    numbers_to_read,
-                ]
-            )
-            print("отпрвка")
-            ser.write(request)
-            print("долбим")
-            output_test.insert(END, f"[{current_time}] долбим долбим долбим\n")
-        except Exception as e:
-            error_message = f"[{current_time}]Ошибка тестовой отправки запросов: {e}"
-            print(error_message)
-            output_test.insert(END, error_message + "\n")
-    except Exception as e:
-        error_message = f"[{current_time}]Ошибка тестовой отправки запросов: {e}"
-        print(error_message)
-        output_test.insert(END, error_message + "\n")
+    print('read_holding_test')
     
     if is_testing:
         root.after(1000, read_holding_test)
@@ -64,109 +56,16 @@ def read_holding():
     current_time = datetime.now().strftime("%H:%M:%S")
     if not is_logging:
         return
- 
-    register_address = int(starting_adress_entry.get())
-    numbers_to_read = int(numbers_to_read_entry.get())
+    print('read_holding')
     
-    try:
-        ser = serial.Serial(
-        port=port,
-        baudrate=baudrate,
-        parity=parity,
-        stopbits=stopbits,
-        bytesize=bytesize,
-        timeout = timeout,
-    )
-        try:
-            request = bytearray(
-                [
-                    slave_id,
-                    0x4,
-                    (register_address >> 8) & 0xFF,
-                    register_address & 0xFF,
-                    0x00,
-                    numbers_to_read,
-                ]
-            )
-            ser.write(request)
-            try:
-                response = ser.read(5 + numbers_to_read * 2)
-                print(response)
-                byte_count = response[2]
-                data_index = 3
-                registers = []
-                for i in range(numbers_to_read):
-                    value = (response[data_index] << 8) + response[data_index + 1]
-                    registers.append(value)
-                    data_index += 2
-                register_type = "Input Register"
-                for i in range(numbers_to_read):
-                    output.insert(
-                        END,
-                        f"[{current_time}] {register_type} -  Register {register_address + i} - value {registers[i]}\n",
-                    )
-            except Exception as e:
-                error_message = (
-                    f"[{current_time}] Ошибка получения ответа: {e}"
-                )
-                print(error_message)
-                output.insert(END, error_message + "\n")
-        except Exception as e:
-            error_message = f"[{current_time}]Ошибка отправки запроса: {e}"
-            print(error_message)
-            output.insert(END, error_message + "\n")
-    except Exception as e:
-            error_message = f"[{current_time}]Ошибка отправки запроса: {e}"
-            print(error_message)
-            output.insert(END, error_message + "\n")
     if is_logging:
         root.after(1000, read_holding)
  
 
 #Запись значения в определенный регистр
 def write_holding():
-
-    register_address = int(register_address_entry.get())
-    value = int(value_entry.get())
-    try:
-        ser = serial.Serial(
-        port=port,
-        baudrate=baudrate,
-        parity=parity,
-        stopbits=stopbits,
-        bytesize=bytesize,
-        timeout = timeout,
-    )
-        current_time = datetime.now().strftime("%H:%M:%S")
-        try:
-            request = bytearray(
-                [
-                    slave_id,
-                    0x10,
-                    (register_address >> 8) & 0xFF,
-                    register_address & 0xFF,
-                    0x00,
-                    0x01,
-                    0x02,
-                    (value >> 8) & 0xFF,
-                    value & 0xFF,
-                ]
-            )
-            crc16 = crcmod.predefined.mkCrcFun("modbus")
-            crc_value = crc16(request)
-            request += crc_value.to_bytes(2, byteorder="big")
-            ser.write(request)
-            output.insert(
-                END,
-                f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",)
-        except Exception as e:
-            error_message = f"[{current_time}] Ошибка отправки запроса на запись: {e}"
-            print(error_message)
-            output.insert(END, error_message + "\n")
-    except Exception as e:
-        error_message = f"[{current_time}] Ошибка отправки запроса на запись: {e}"
-        print(error_message)
-        output.insert(END, error_message + "\n")
+    print('write_holding')
+    
 
 
 #Чтение регистров с выводом на основной экран
@@ -175,308 +74,20 @@ def read_holding_30001_30014():
     if not is_reading:
         return
  
-    register_address = 30001
-    numbers_to_read = 14
-    try:
-        ser = serial.Serial(
-        port=port,
-        baudrate=baudrate,
-        parity=parity,
-        stopbits=stopbits,
-        bytesize=bytesize,
-        timeout = timeout,
-    )
-        current_time = datetime.now().strftime("%H:%M:%S")
-        try:
-            request = bytearray(
-                [
-                    slave_id,
-                    0x4,
-                    (register_address >> 8) & 0xFF,
-                    register_address & 0xFF,
-                    0x00,
-                    numbers_to_read,
-                ]
-            )
-            crc_v = calc_crc16_modbus(request)
-            request += crc_v
-            print(f"Request - {request}")
-            ser.write(request)
-            try:
-                response = ser.read(5 + numbers_to_read * 2)
-                response_data = response[:-2]
-                response_crc = response[-2:]
-                if check_crc(response_crc, response_data):
-                    print(f"Response - {response}")
-                    data_index = 3
-                    registers = []
-                    percentage_outputs = [
-                        output_30005_percent,
-                        output_30006_percent,
-                        output_30007_percent,
-                        output_30008_percent,
-                    ]
-                    for i in range(numbers_to_read):
-                        value = (response[data_index] << 8) + response[data_index + 1]
-                        registers.append(value)
-                        data_index += 2
-                        if i >= 4 and i <= 7:
-                            output_percent = percentage_outputs[i - 4]
-                            percentage = convert_to_percentage(value)
-                            output_percent.delete(1.0, END)
-                            output_percent.insert(END, f"{percentage}%")
-                        
-                        if i == 8 and moment_of_inertia:
-                            kinetic_energy = accumulated_kinetic_energy(moment_of_inertia, value)
-                            accumulated_kinetic_energy_output.delete(1.0, END)
-                            accumulated_kinetic_energy_output.insert(END, f"{kinetic_energy}J")
-                        if i ==  10:
-                            update_indicator_color(value)
-                    output_fields = [
-                        output_30001,
-                        output_30002,
-                        output_30003,
-                        output_30004,
-                        output_30005,
-                        output_30006,
-                        output_30007,
-                        output_30008,
-                        output_30009,
-                        output_30010,
-                        output_30011, 
-                        output_30012,
-                        output_30013,
-                        output_30014]
-                    for i in range(numbers_to_read):
-                        converted_vdc = 0
-                        print(converted_vdc)
-                        converted_adc = 0
-                        print(converted_adc)
-                        P_output.delete(1.0, END)
-                        P_output.insert(END, f"{converted_adc * converted_vdc} W")
-                        if i == 4:
-                            pwm = i
-                            output_fields[i].delete(1.0, END)
-                            output_fields[i].insert(END, f"{registers[i]}")
-
-                        elif i == 12:
-                            converted_vdc = convert_VDC(vdc = registers[i])
-                            output_fields[i].delete(1.0, END)
-                            output_fields[i].insert(END, f"{converted_vdc}")
-
-                        elif i == 13:
-                            converted_adc = convert_ADC(adc = registers[i])
-                            output_fields[i].delete(1.0, END)
-                            output_fields[i].insert(END, f"{converted_adc}")
-
-                        else:    
-                            output_fields[i].delete(1.0, END)
-                            output_fields[i].insert(END, f"{registers[i]}")
-                else:
-                    error_message = f"[{current_time}]Ошибка контрольной суммы в ответе"
-                    print(error_message)
-                    output.insert(END, error_message + "\n")
-            except Exception as e:
-                error_message = f"[{current_time}] Ошибка получения ответа "
-                print(error_message)
-                output.insert(END, error_message + "\n")
-        except Exception as e:
-            error_message = f"[{current_time}] Ошибка получения ответа "
-            print(error_message)
-            output.insert(END, error_message + "\n")
-    except Exception as e:
-        error_message = f" Ошибка отправки запроса на чтение: {e}"
-        print(error_message)
-        output.insert(END, error_message + "\n")
+    print('read_holding_30001_30014')
 
     if is_reading:
         root.after(1000, read_holding_30001_30014)
  
 
 #Функции управления PWM (разгон, торможение, стоп)
-def acceleration():
-    current_time = datetime.now().strftime("%H:%M:%S")
-    register_address = 30005
-    numbers_to_read = 1
-    try:
-        ser = serial.Serial(
-        port=port,
-        baudrate=baudrate,
-        parity=parity,
-        stopbits=stopbits,
-        bytesize=bytesize,
-        timeout = timeout,
-    )
-        current_time = datetime.now().strftime("%H:%M:%S")
-        try:
-            request = bytearray(
-                [
-                    slave_id,
-                    0x4,
-                    (register_address >> 8) & 0xFF,
-                    register_address & 0xFF,
-                    0x00,
-                    numbers_to_read,
-                ]
-            )
-            crc_v = calc_crc16_modbus(request)
-            request += crc_v
-            ser.write_timeout = timeout
-            ser.write(request)
-            try:
-                response = ser.read(5 + numbers_to_read * 2)
-                response_data = response[:-2]
-                response_crc = response[-2:]
-                if check_crc(response_crc, response_data):
-                    print(response)
-                    data_index = 3
-                    value = (response[data_index] << 8) + response[data_index + 1]
-                    register_to_write = 1
-                    if value >= 1995:
-                        new_value = 2000
-                    else:
-                        new_value = value + 5
-                    try:
-                        ser = serial.Serial(
-                            port=port,
-                            baudrate=baudrate,
-                            parity=parity,
-                            stopbits=stopbits,
-                            bytesize=bytesize,
-                        )
-                        current_time = datetime.now().strftime("%H:%M:%S")
-                        try:
-                            request = bytearray(
-                                [
-                                    slave_id,
-                                    0x10,
-                                    (register_to_write >> 8) & 0xFF,
-                                    register_to_write & 0xFF,
-                                    0x00,
-                                    0x01,
-                                    0x02,
-                                    (new_value >> 8) & 0xFF,
-                                    new_value & 0xFF,
-                                ]
-                            )
-                            crc16 = crcmod.predefined.mkCrcFun("modbus")
-                            crc_value = crc16(request)
-                            request += crc_value.to_bytes(2, byteorder="big")
-                            ser.write(request)
-                        except Exception as e:
-                            error_message = (
-                                f"[{current_time}] Ошибка записи: {e}"
-                            )
-                            print(error_message)
-                            output.insert(END, error_message + "\n")
-                    except Exception as e:
-                        error_message = f"Ошибка чтения: {e}"
-                        print(error_message)
-                        output.insert(END, error_message + "\n")
-            except Exception as e:
-                error_message = f"[{current_time}]Ошибка получения ответа: {e}"
-                print(error_message)
-                output.insert(END, error_message + "\n")
-        except Exception as e:
-                error_message = f"[{current_time}]Ошибка получения ответа: {e}"
-                print(error_message)
-                output.insert(END, error_message + "\n")
-    except Exception as e:
-        error_message = f"[{current_time}] Ошибка отправки запроса на чтение: {e}"
-        print(error_message)
-        output.insert(END, error_message + "\n")
+def acceleration(pwm):
+    print("Acceleration")
+    
 
  
 def slowdown():
-    current_time = datetime.now().strftime("%H:%M:%S")
-    register_address = 30005
-    numbers_to_read = 1
-    try:
-        ser = serial.Serial(
-        port=port,
-        baudrate=baudrate,
-        parity=parity,
-        stopbits=stopbits,
-        bytesize=bytesize,
-        timeout = timeout,
-    )
-        try:
-            request = bytearray(
-                [
-                    slave_id,
-                    0x4,
-                    (register_address >> 8) & 0xFF,
-                    register_address & 0xFF,
-                    0x00,
-                    numbers_to_read,
-                ]
-            )
-            crc_v = calc_crc16_modbus(request)
-            request += crc_v
-            ser.write_timeout = timeout
-            ser.write(request)
-            try:
-                response = ser.read(5 + numbers_to_read * 2)
-                response_data = response[:-2]
-                response_crc = response[-2:]
-                if check_crc(response_crc, response_data):
-                    print(response)
-                    data_index = 3
-                    value = (response[data_index] << 8) + response[data_index + 1]
-                    register_to_write = 1
-                    if value < 5:
-                        new_value = 0
-                    else:
-                        new_value = value - 5
-                    try:
-                        ser = serial.Serial(
-                            port=port,
-                            baudrate=baudrate,
-                            parity=parity,
-                            stopbits=stopbits,
-                            bytesize=bytesize,
-                        )
-                        current_time = datetime.now().strftime("%H:%M:%S")
-                        try:
-                            request = bytearray(
-                                [
-                                    slave_id,
-                                    0x10,
-                                    (register_to_write >> 8) & 0xFF,
-                                    register_to_write & 0xFF,
-                                    0x00,
-                                    0x01,
-                                    0x02,
-                                    (new_value >> 8) & 0xFF,
-                                    new_value & 0xFF,
-                                ]
-                            )
-                            crc16 = crcmod.predefined.mkCrcFun("modbus")
-                            crc_value = crc16(request)
-                            request += crc_value.to_bytes(2, byteorder="big")
-                            ser.write(request)
-                        except Exception as e:
-                            error_message = (
-                                f"[{current_time}] Error writing to Holding Register: {e}"
-                            )
-                            print(error_message)
-                            output.insert(END, error_message + "\n")
-                    except Exception as e:
-                        error_message = f"Error reading Modbus RTU: {e}"
-                        print(error_message)
-                        output.insert(END, error_message + "\n")
-            except Exception as e:
-                    error_message = f"Error reading Modbus RTU: {e}"
-                    print(error_message)
-                    output.insert(END, error_message + "\n")
-        except Exception as e:
-            error_message = f"[{current_time}]Error reading input Register: {e}"
-            print(error_message)
-            output.insert(END, error_message + "\n")
-    except Exception as e:
-        error_message = f"Error reading modbus rtu: {e}"
-        print(error_message)
-        output.insert(END, error_message + "\n")
+    print("slowdown")
 
  
 def shutdown():
@@ -565,10 +176,7 @@ def trh_plus():
                     data_index = 3
                     value = (response[data_index] << 8) + response[data_index + 1]
                     register_to_write = 2
-                    if value >= 980:
-                        new_value = 1000
-                    else:
-                        new_value = value + 20
+                    new_value = value + 20
                     try:
                         ser = serial.Serial(
                             port=port,
@@ -659,10 +267,7 @@ def trh_minus():
                     data_index = 3
                     value = (response[data_index] << 8) + response[data_index + 1]
                     register_to_write = 2
-                    if value < 20:
-                        new_value = 0
-                    else:
-                        new_value = value - 20
+                    new_value = value - 20
                     try:
                         ser = serial.Serial(
                             port=port,
@@ -717,49 +322,47 @@ def trh_minus():
 def trh_write():
 
     register_address = 2
-    current_time = datetime.now().strftime("%H:%M:%S")
-    if value_trh_entry.get() != '':
-        value = int(value_trh_entry.get())
+    value = int(value_trh_entry.get())
+    try:
+        ser = serial.Serial(
+        port=port,
+        baudrate=baudrate,
+        parity=parity,
+        stopbits=stopbits,
+        bytesize=bytesize,
+        timeout = timeout,
+    )
+        current_time = datetime.now().strftime("%H:%M:%S")
         try:
-            ser = serial.Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-            timeout = timeout,
-        )
-            
-            try:
-                request = bytearray(
-                    [
-                        slave_id,
-                        0x10,
-                        (register_address >> 8) & 0xFF,
-                        register_address & 0xFF,
-                        0x00,
-                        0x01,
-                        0x02,
-                        (value >> 8) & 0xFF,
-                        value & 0xFF,
-                    ]
-                )
-                crc16 = crcmod.predefined.mkCrcFun("modbus")
-                crc_value = crc16(request)
-                request += crc_value.to_bytes(2, byteorder="big")
-                ser.write(request)
-                output.insert(
-                    END,
-                    f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
-                )
-            except Exception as e:
-                error_message = f"[{current_time}] Error writing to Holding Register: {e}"
-                print(error_message)
-                output.insert(END, error_message + "\n")
+            request = bytearray(
+                [
+                    slave_id,
+                    0x10,
+                    (register_address >> 8) & 0xFF,
+                    register_address & 0xFF,
+                    0x00,
+                    0x01,
+                    0x02,
+                    (value >> 8) & 0xFF,
+                    value & 0xFF,
+                ]
+            )
+            crc16 = crcmod.predefined.mkCrcFun("modbus")
+            crc_value = crc16(request)
+            request += crc_value.to_bytes(2, byteorder="big")
+            ser.write(request)
+            output.insert(
+                END,
+                f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
+            )
         except Exception as e:
             error_message = f"[{current_time}] Error writing to Holding Register: {e}"
             print(error_message)
             output.insert(END, error_message + "\n")
+    except Exception as e:
+        error_message = f"[{current_time}] Error writing to Holding Register: {e}"
+        print(error_message)
+        output.insert(END, error_message + "\n")
 
  
  
@@ -1129,9 +732,6 @@ accumulated_kinetic_energy_output.place(x=150, y=440, width=80, height=25)
 kW_power_output = Text(tab4)
 kW_power_output.place(x=350, y=320, width=60, height=25)
 
-P_output = Text(tab4)
-P_output.place(x=150, y=480, width=80, height=25)
-
 
 window_width = 1024
 window_height = 720
@@ -1323,7 +923,7 @@ clear_button.pack()
 start_button_test = Button(
     tab3,
     text="Пуск для теста",
-    command=start_test_reading,
+    command=lambda: task_queue.put(start_test_reading),
     font=("Arial", 10, "bold"),
     foreground="black",
 )
@@ -1332,7 +932,7 @@ start_button.pack()
 stop_button_test = Button(
     tab3,
     text="Стоп тест",
-    command=stop_test_reading,
+    command=lambda: task_queue.put(stop_test_reading),
     font=("Arial", 10, "bold"),
     foreground="black",
 )
@@ -1504,16 +1104,6 @@ power_label = Label(
 power_label.place(x=250, y=320)
 
 
-P_output_label = Label(
-    tab4,
-    text="P",
-    font=("Arial", 10, "bold"),
-    foreground="white",
-    background="#424242",
-)
-P_output_label.place(x=10, y=480) 
-
-
 time_label = Label(tab4, font=("Arial", 10, "bold"), foreground="white", background="#424242")
 time_label.place(x=950, y=10)
 time_label_text = Label(tab4, text="Current time:", font=("Arial", 10, "bold"), foreground="white", background="#424242")
@@ -1529,7 +1119,12 @@ radius = 8
 circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="grey")
 
 
-auto_scroll()
-root.bind("<Configure>", resize_window)
-update_time()
-root.mainloop()
+if __name__ == "__main__":
+    # Створення окремого потоку для обробки черги
+    worker_thread = threading.Thread(target=process_queue)
+    worker_thread.start()
+
+    # Запуск головного циклу Tkinter в основному потоці
+    # root = ThemedTk(theme="black")
+    root.protocol("WM_DELETE_WINDOW", on_closing)  # Додати обробник закриття вікна
+    main_thread()
