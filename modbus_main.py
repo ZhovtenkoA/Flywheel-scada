@@ -883,9 +883,7 @@ def make_kW_h():
                     error_message = f"[{current_time}] Error writing to Holding Register: {e}"
                     print(error_message)
                     output.insert(END, error_message + "\n")
-                kW_power_output.delete(1.0, END)
-                kW_power_output.insert(END, f"{n - 1}s")
-                print('Считаем...')
+                print(f'Считаем...{n - 1}')
                 time.sleep(1)         
             except Exception as e:
                 error_message = f"[{current_time}] Error reading input Register: {e}"
