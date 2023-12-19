@@ -890,6 +890,7 @@ def make_W_h():
                     converted_adc = convert_ADC(adc=value)
                     power = make_P(adc=converted_adc, vdc=converted_vdc)
                     power_accumulated += power * (1 / 3600)
+                    power_accumulated = round(power_accumulated, 4)
             
             update_power_output(power_accumulated)
     except Exception as e:
