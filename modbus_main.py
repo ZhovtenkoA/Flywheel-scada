@@ -878,12 +878,13 @@ def make_kW_h():
                                 converted_adc = convert_ADC(adc = value)
                                 power = make_P(adc= converted_adc, vdc= converted_vdc)
                                 power_accumulated += power * (1 / 3600)
+                                kW_power_output.delete(1.0, END)
+                                kW_power_output.insert(END, f"{n - 1}s ")
                 except Exception as e:
                     error_message = f"[{current_time}] Error writing to Holding Register: {e}"
                     print(error_message)
                     output.insert(END, error_message + "\n")
-                kW_power_output.delete(1.0, END)
-                kW_power_output.insert(END, f"{n - 1}s ")
+
                 time.sleep(1)         
             except Exception as e:
                 error_message = f"[{current_time}] Error reading input Register: {e}"
