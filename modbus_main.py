@@ -829,7 +829,7 @@ def update_indicator_color(value):
 
 def update_power_output(power):
     kW_power_output.delete(1.0, END)
-    kW_power_output.insert(END, f"{power} W")
+    kW_power_output.insert(END, f"{power} W*h")
 
 
 def start_counting_w_h():
