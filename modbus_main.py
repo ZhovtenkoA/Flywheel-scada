@@ -846,8 +846,7 @@ def make_kW_h():
         end_time = start_time + timedelta(seconds=5)
         n = 6
         while datetime.now() < end_time:
-            kW_power_output.delete(1.0, END)
-            kW_power_output.insert(END, f"{n - 1}s ")
+
             try:
                 request = bytearray(
                     [
@@ -869,6 +868,8 @@ def make_kW_h():
                     if check_crc(response_crc, response_data):
                         data_index = 3
                         registers = []
+                        kW_power_output.delete(1.0, END)
+                        kW_power_output.insert(END, f"{n - 1}s")
                         for i in range(numbers_to_read):
                             value = (response[data_index] << 8) + response[data_index + 1]
                             registers.append(value)
