@@ -844,8 +844,8 @@ def make_kW_h():
     )
         start_time = datetime.now()
         end_time = start_time + timedelta(seconds=5)
+        n = 6
         while datetime.now() < end_time:
-            n = 6
             kW_power_output.delete(1.0, END)
             kW_power_output.insert(END, f"{n - 1}s ")
             try:
