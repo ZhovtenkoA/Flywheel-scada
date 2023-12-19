@@ -23,7 +23,7 @@ def convert_VDC(vdc):
 
 #Функция конвертации ADC -> A
 def convert_ADC(adc):
-    A = ((adc - adc0) * 3.3) / 4096 * 10/6.3 * 1/0.0133
+    A = ((adc - adc0) * 3.3) / 4096 * 10/6.4 * 1/0.0133
     # A = (adc - adc0) * 330 / 33.775
     A = round(A, 2)
     return A
