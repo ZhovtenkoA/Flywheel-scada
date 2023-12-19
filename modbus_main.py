@@ -844,74 +844,62 @@ def start_counting_w_h():
 
 #Черновик функции получения киловатт*ч
 def make_W_h():
+    global power_accumulated, counting_in_progress
     register_address = 30013
     numbers_to_read = 2
     try:
         ser = serial.Serial(
-        port=port,
-        baudrate=baudrate,
-        parity=parity,
-        stopbits=stopbits,
-        bytesize=bytesize,
-        timeout = timeout,
-    )
-        def read_registers():
-            global power_accumulated, counting_in_progress
-            try:
-                ser = serial.Serial(
-                    port=port,
-                    baudrate=baudrate,
-                    parity=parity,
-                    stopbits=stopbits,
-                    bytesize=bytesize,
-                    timeout=timeout,
-                )
+            port=port,
+            baudrate=baudrate,
+            parity=parity,
+            stopbits=stopbits,
+            bytesize=bytesize,
+            timeout=timeout,
+        )
+        
+        request = bytearray(
+            [
+                slave_id,
+                0x4,
+                (register_address >> 8) & 0xFF,
+                register_address & 0xFF,
+                0x00,
+                numbers_to_read,
+            ]
+        )
+        crc_v = calc_crc16_modbus(request)
+        request += crc_v
+        ser.write(request)
+        
+        response = ser.read(5 + numbers_to_read * 2)
+        response_data = response[:-2]
+        response_crc = response[-2:]
+        
+        if check_crc(response_crc, response_data):
+            data_index = 3
+            registers = []
+            
+            for i in range(numbers_to_read):
+                value = (response[data_index] << 8) + response[data_index + 1]
+                registers.append(value)
+                data_index += 2
                 
-                request = bytearray(
-                    [
-                        slave_id,
-                        0x4,
-                        (register_address >> 8) & 0xFF,
-                        register_address & 0xFF,
-                        0x00,
-                        numbers_to_read,
-                    ]
-                )
-                crc_v = calc_crc16_modbus(request)
-                request += crc_v
-                ser.write(request)
-                
-                response = ser.read(5 + numbers_to_read * 2)
-                response_data = response[:-2]
-                response_crc = response[-2:]
-                
-                if check_crc(response_crc, response_data):
-                    data_index = 3
-                    registers = []
-                    
-                    for i in range(numbers_to_read):
-                        value = (response[data_index] << 8) + response[data_index + 1]
-                        registers.append(value)
-                        data_index += 2
-                        
-                        if i == 0:
-                            converted_vdc = convert_VDC(vdc=value)
-                        elif i == 1:
-                            converted_adc = convert_ADC(adc=value)
-                            power = make_P(adc=converted_adc, vdc=converted_vdc)
-                            power_accumulated += power * (1 / 3600)
-                    
-                    update_power_output(power_accumulated)
-            except Exception as e:
-                error_message = f"Error reading Modbus RTU: {e}"
-                print(error_message)
-                output.insert(END, error_message + "\n")
-            if counting_in_progress:
-                root.after(5000, read_registers)
+                if i == 0:
+                    converted_vdc = convert_VDC(vdc=value)
+                elif i == 1:
+                    converted_adc = convert_ADC(adc=value)
+                    power = make_P(adc=converted_adc, vdc=converted_vdc)
+                    power_accumulated += power * (1 / 3600)
+            
+            update_power_output(power_accumulated)
     except Exception as e:
         error_message = f"Error reading Modbus RTU: {e}"
         print(error_message)
         output.insert(END, error_message + "\n")
+
+    if counting_in_progress:
+        root.after(5000, make_W_h)
+
 
 
 #Черновик функции записи времени
