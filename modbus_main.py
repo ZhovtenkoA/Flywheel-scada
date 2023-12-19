@@ -827,6 +827,10 @@ def update_indicator_color(value):
         indicator.itemconfig(circle, fill="red")
 
 
+def update_remaining_time(remaining_seconds):
+    kW_power_output.delete(1.0, END)
+    kW_power_output.insert(END, f"{remaining_seconds} s")
+
 #Черновик функции получения киловатт*ч
 def make_kW_h():
     register_address = 30013
@@ -844,58 +848,71 @@ def make_kW_h():
     )
         start_time = datetime.now()
         end_time = start_time + timedelta(seconds=10)
+        remaining_time = end_time - datetime.now()
+        remaining_seconds = int(remaining_time.total_seconds())
 
-        while datetime.now() < end_time:
-            try:
-                request = bytearray(
-                    [
-                        slave_id,
-                        0x4,
-                        (register_address >> 8) & 0xFF,
-                        register_address & 0xFF,
-                        0x00,
-                        numbers_to_read,
-                    ]
-                )
-                crc_v = calc_crc16_modbus(request)
-                request += crc_v
-                ser.write(request)
-                try:
-                    response = ser.read(5 + numbers_to_read * 2)
-                    response_data = response[:-2]
-                    response_crc = response[-2:]
-                    if check_crc(response_crc, response_data):
-                        data_index = 3
-                        registers = []
-                        for i in range(numbers_to_read):
-                            value = (response[data_index] << 8) + response[data_index + 1]
-                            registers.append(value)
-                            data_index += 2                   
-                            if i == 0:
-                                converted_vdc = convert_VDC(vdc = value)
-
-                            if i ==  1:
-                                converted_adc = convert_ADC(adc = value)
-                                power = make_P(adc= converted_adc, vdc= converted_vdc)
-                                power_accumulated += power * (1 / 3600)
-                                remaining_time = end_time - datetime.now()
-                                remaining_seconds = int(remaining_time.total_seconds())
-                                kW_power_output.delete(1.0, END)
-                                kW_power_output.insert(END, f"{remaining_seconds} s")
-                except Exception as e:
-                    error_message = f"[{current_time}] Error writing to Holding Register: {e}"
-                    print(error_message)
-                    output.insert(END, error_message + "\n")
-                time.sleep(1)         
-            except Exception as e:
-                error_message = f"[{current_time}] Error reading input Register: {e}"
-                print(error_message)
-                output.insert(END, error_message + "\n")
-
-        power_accumulated = round(power_accumulated, 4)
-        print(f"Total power consumed: {power_accumulated} kW*h")
-        kW_power_output.delete(1.0, END)
-        kW_power_output.insert(END, f"{power_accumulated}kW*h")
+        def read_registers():
+                    nonlocal power_accumulated, remaining_seconds
+                    try:
+                        request = bytearray(
+                            [
+                                slave_id,
+                                0x4,
+                                (register_address >> 8) & 0xFF,
+                                register_address & 0xFF,
+                                0x00,
+                                numbers_to_read,
+                            ]
+                        )
+                        crc_v = calc_crc16_modbus(request)
+                        request += crc_v
+                        ser.write(request)
+                        
+                        try:
+                            response = ser.read(5 + numbers_to_read * 2)
+                            response_data = response[:-2]
+                            response_crc = response[-2:]
+                            
+                            if check_crc(response_crc, response_data):
+                                data_index = 3
+                                registers = []
+                                
+                                for i in range(numbers_to_read):
+                                    value = (response[data_index] << 8) + response[data_index + 1]
+                                    registers.append(value)
+                                    data_index += 2
+                                    
+                                    if i == 0:
+                                        converted_vdc = convert_VDC(vdc=value)
+                                    elif i == 1:
+                                        converted_adc = convert_ADC(adc=value)
+                                        power = make_P(adc=converted_adc, vdc=converted_vdc)
+                                        power_accumulated += power * (1 / 3600)
+                                        
+                        except Exception as e:
+                            error_message = f"[{current_time}] Error writing to Holding Register: {e}"
+                            print(error_message)
+                            output.insert(END, error_message + "\n")
+                        
+                        remaining_time = end_time - datetime.now()
+                        remaining_seconds = int(remaining_time.total_seconds())
+                        update_remaining_time(remaining_seconds)
+                        
+                        if remaining_seconds > 0:
+                            root.after(1000, read_registers)
+                        else:
+                            power_accumulated = round(power_accumulated, 4)
+                            print(f"Total power consumed: {power_accumulated} kW*h")
+                            kW_power_output.delete(1.0, END)
+                            kW_power_output.insert(END, f"{power_accumulated} kW*h")
+                
+                    except Exception as e:
+                        error_message = f"[{current_time}] Error reading input Register: {e}"
+                        print(error_message)
+                        output.insert(END, error_message + "\n")
+                
+        read_registers()
+    
     except Exception as e:
         error_message = f"Error reading Modbus RTU: {e}"
         print(error_message)
