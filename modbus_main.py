@@ -829,7 +829,7 @@ def update_indicator_color(value):
 
 def update_remaining_time(remaining_seconds):
     kW_power_output.delete(1.0, END)
-    kW_power_output.insert(END, f"{remaining_seconds} s")
+    kW_power_output.insert(END, f"Считаем..{remaining_seconds}с осталось")
 
 #Черновик функции получения киловатт*ч
 def make_kW_h():
