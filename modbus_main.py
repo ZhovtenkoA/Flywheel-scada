@@ -1,5 +1,5 @@
 from tkinter import *
-from datetime import datetime
+from datetime import datetime, timedelta
 import serial
 from tkinter import ttk
 import crcmod.predefined
@@ -829,9 +829,10 @@ def update_indicator_color(value):
 
 #Черновик функции получения киловатт*ч
 def make_kW_h():
-
     register_address = 30013
-    numbers_to_read = 4
+    numbers_to_read = 2
+    power_accumulated = 0
+    current_time = time.strftime("%H:%M:%S")
     try:
         ser = serial.Serial(
         port=port,
@@ -841,40 +842,9 @@ def make_kW_h():
         bytesize=bytesize,
         timeout = timeout,
     )
-        current_time = datetime.now()
-        current_hour = current_time.hour
-        current_minute = current_time.minute
-        current_second = current_time.second
-        combined_value = (current_hour << 8) + current_minute
-        try:
-            request = bytearray(
-                [
-                    slave_id,
-                    0x10,
-                    0x00, 0x03,  #adress
-                    0x00, 0x01,  
-                    0x02,  
-                    (combined_value >> 8) & 0xFF, combined_value & 0xFF,  
-                ]
-            )
-            crc16 = crcmod.predefined.mkCrcFun("modbus")
-            crc_value = crc16(request)
-            request += crc_value.to_bytes(2, byteorder="big")
-            ser.write(request)
-            
-            request = bytearray(
-                [
-                    slave_id,
-                    0x10,
-                    0x00, 0x04,  #adress
-                    0x00, 0x01,  
-                    0x02,  
-                    (current_second >> 8) & 0xFF, current_second & 0xFF,  
-                ]
-            )
-            crc_value = crc16(request)
-            request += crc_value.to_bytes(2, byteorder="big")
-            ser.write(request)
+        start_time = datetime.now()
+        end_time = start_time + timedelta(seconds=5)
+        while datetime.now() < end_time:
             try:
                 request = bytearray(
                     [
@@ -886,32 +856,42 @@ def make_kW_h():
                         numbers_to_read,
                     ]
                 )
+                crc_v = calc_crc16_modbus(request)
+                request += crc_v
                 ser.write(request)
-                response = ser.read(5 + numbers_to_read * 2)
-                data_index = 3
-                vdc = (response[data_index] << 8) + response[data_index + 1]
-                adc = (response[data_index + 2] << 8) + response[data_index + 3]
-                old_hour_minute = (response[data_index+4] << 8) + response[data_index + 5]
-                old_hour = old_hour_minute // 100 
-                old_minute = old_hour_minute % 100
-                old_second = (response[data_index + 6] << 8) + response[data_index + 7]
-                t1 = datetime.time(old_hour, old_minute, old_second)
-                time.sleep(5)
-                t2 = datetime.now()
                 try:
-                    kW_h = accumulated_energy_kW_h(VDC=vdc, ADC=adc, t2=t2, t1=t1)
-                    kW_power_output.delete(1.0, END)
-                    kW_power_output.insert(END, f"{kW_h}kW*h")
+                    response = ser.read(5 + numbers_to_read * 2)
+                    response_data = response[:-2]
+                    response_crc = response[-2:]
+                    if check_crc(response_crc, response_data):
+                        data_index = 3
+                        registers = []
+                        for i in range(numbers_to_read):
+                            value = (response[data_index] << 8) + response[data_index + 1]
+                            registers.append(value)
+                            data_index += 2                   
+                            if i == 0:
+                                converted_vdc = convert_VDC(vdc = value)
+
+                            if i ==  1:
+                                converted_adc = convert_ADC(adc = value)
+                                power = make_P(adc= converted_adc, vdc= converted_vdc)
+                                power_accumulated += power * (1 / 3600)
                 except Exception as e:
-                    print("missing argument")
+                    error_message = f"[{current_time}] Error writing to Holding Register: {e}"
+                    print(error_message)
+                    output.insert(END, error_message + "\n")
+
+                time.sleep(1)         
             except Exception as e:
-                error_message = f"[{current_time}] Error writing to Holding Register: {e}"
+                error_message = f"[{current_time}] Error reading input Register: {e}"
                 print(error_message)
                 output.insert(END, error_message + "\n")
-        except Exception as e:
-            error_message = f"[{current_time}] Error reading input Register: {e}"
-            print(error_message)
-            output.insert(END, error_message + "\n")
+
+        print(f"Total power consumed: {power_accumulated} kW*h")
+
+        kW_power_output.delete(1.0, END)
+        kW_power_output.insert(END, f"{power_accumulated}kW*h")
     except Exception as e:
         error_message = f"Error reading Modbus RTU: {e}"
         print(error_message)
@@ -1302,7 +1282,7 @@ write_inertia_value_button.place(x=520, y=440, width=100, height=25)
 kW_power_button = Button(
     tab4,
     text="Рассчет kW*h",
-    command=write_time,
+    command=make_kW_h,
     font=("Arial", 10, "bold"),
     foreground="black",
 )

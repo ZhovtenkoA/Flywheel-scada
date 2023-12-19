@@ -13,12 +13,6 @@ def accumulated_kinetic_energy(moment_of_innertia, rpm):
     kinetic_energy = round(kinetic_energy, 2)
     return kinetic_energy
 
-#Расчет Accumulated Energy, кВт*ч
-def accumulated_energy_kW_h(VDC, ADC, t2, t1):
-    time_diff = datetime.combine(datetime.date.today(), t2) - datetime.combine(datetime.date.today(), t1)
-    seconds = time_diff.total_seconds()
-    kW_h = VDC * ADC * seconds/ 3600
-    return kW_h
 
 #Функция конвертации VDC -> V
 def convert_VDC(vdc):
