@@ -33,3 +33,10 @@ def convert_ADC(adc):
     # A = (adc - adc0) * 330 / 33.775
     A = round(A, 2)
     return A
+
+#Функция получения мощности
+def make_P(adc, vdc):
+    P = adc * vdc
+    # A = (adc - adc0) * 330 / 33.775
+    P = round(P, 2)
+    return P

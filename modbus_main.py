@@ -261,8 +261,9 @@ def read_holding_30001_30014():
 
                         elif i == 13:
                             converted_adc = convert_ADC(adc = registers[i])
+                            power = make_P(adc= converted_adc, vdc= converted_vdc)
                             P_output.delete(1.0, END)
-                            P_output.insert(END, f"{converted_adc * converted_vdc} W")
+                            P_output.insert(END, f"{power} W")
                             output_fields[i].delete(1.0, END)
                             output_fields[i].insert(END, f"{converted_adc}")
 
