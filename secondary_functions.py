@@ -1,6 +1,6 @@
 from datetime import datetime
 
-adc0 = 1173
+adc0 = 1171
 
 #Преобразование в процент 
 def convert_to_percentage(value):
