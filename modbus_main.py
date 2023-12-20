@@ -204,10 +204,10 @@ def read_holding_30001_30014():
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
+                print(f"Response - {response}")
                 response_data = response[:-2]
                 response_crc = response[-2:]
                 if check_crc(response_crc, response_data):
-                    print(f"Response - {response}")
                     data_index = 3
                     registers = []
                     percentage_outputs = [
@@ -323,10 +323,10 @@ def acceleration():
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
+                print(f"Response - {response}")
                 response_data = response[:-2]
                 response_crc = response[-2:]
                 if check_crc(response_crc, response_data):
-                    print(response)
                     data_index = 3
                     value = (response[data_index] << 8) + response[data_index + 1]
                     register_to_write = 1
@@ -415,10 +415,10 @@ def slowdown():
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
+                print(f"Response - {response}")
                 response_data = response[:-2]
                 response_crc = response[-2:]
                 if check_crc(response_crc, response_data):
-                    print(response)
                     data_index = 3
                     value = (response[data_index] << 8) + response[data_index + 1]
                     register_to_write = 1
@@ -556,10 +556,10 @@ def trh_plus():
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
+                print(f"Response - {response}")
                 response_data = response[:-2]
                 response_crc = response[-2:]
                 if check_crc(response_crc, response_data):
-                    print(response)
                     data_index = 3
                     value = (response[data_index] << 8) + response[data_index + 1]
                     register_to_write = 2
@@ -650,10 +650,10 @@ def trh_minus():
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
+                print(f"Response - {response}")
                 response_data = response[:-2]
                 response_crc = response[-2:]
                 if check_crc(response_crc, response_data):
-                    print(response)
                     data_index = 3
                     value = (response[data_index] << 8) + response[data_index + 1]
                     register_to_write = 2
