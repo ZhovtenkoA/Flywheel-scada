@@ -221,6 +221,7 @@ def read_holding_30001_30014():
                         registers.append(value)
                         data_index += 2
                         if i >= 4 and i <= 7:
+                            update_pwm_indicator_color(i, value)
                             output_percent = percentage_outputs[i - 4]
                             percentage = convert_to_percentage(value)
                             output_percent.delete(1.0, END)
@@ -825,6 +826,33 @@ def update_indicator_color(value):
         indicator.itemconfig(circle, fill="green")
     else: 
         indicator.itemconfig(circle, fill="red")
+
+
+#Изменение цвета индикатора PWM
+def update_pwm_indicator_color(i, value):
+    register_value = value
+    if i == 4: 
+        if register_value >1000: 
+            indicator_pwm1.itemconfig(circle, fill="red")
+        # else: 
+        #     indicator_pwm1.itemconfig(circle, fill="red")
+    elif i == 5:
+        if register_value >1000: 
+            indicator_pwm2.itemconfig(circle, fill="red")
+        # else: 
+        #     indicator_pwm2.itemconfig(circle, fill="red")
+    elif i == 6:
+        if register_value >1000: 
+            indicator_pwm3.itemconfig(circle, fill="red")
+        # else: 
+        #     indicator_pwm3.itemconfig(circle, fill="red")
+    elif i == 7:
+        if register_value >1000: 
+            indicator_pwm4.itemconfig(circle, fill="red")
+        # else: 
+        #     indicator_pwm4.itemconfig(circle, fill="red")
+
+
 
 
 def update_power_output(power):
@@ -1506,11 +1534,32 @@ indicator = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=
 indicator.pack()
 indicator.place(x=120, y=242)
 
+indicator_pwm1 = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
+indicator_pwm1.pack()
+indicator_pwm1.place(x=420, y=10)
+
+indicator_pwm2 = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
+indicator_pwm2.pack()
+indicator_pwm2.place(x=420, y=50)
+
+indicator_pwm3 = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
+indicator_pwm3.pack()
+indicator_pwm3.place(x=420, y=90)
+
+indicator_pwm4 = Canvas(tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242")
+indicator_pwm4.pack()
+indicator_pwm4.place(x=420, y=130)
+
+
 center_x = 10
 center_y = 10
 radius = 8
-circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="grey")
 
+circle = indicator.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="grey")
+circle_pwm1= indicator_pwm1.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="green")
+circle_pwm2= indicator_pwm2.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="green")
+circle_pwm3= indicator_pwm3.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="green")
+circle_pwm4= indicator_pwm4.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="green")
 
 auto_scroll()
 root.bind("<Configure>", resize_window)
