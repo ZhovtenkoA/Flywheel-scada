@@ -14,12 +14,7 @@ import queue
 
 
 def on_closing():
-    # Зупинити процеси і виконати необхідні дії перед закриттям програми
-    # Наприклад, встановити флаг для завершення циклу в процесі обробки черги
-    # або зупинити відповідні процеси
-    # ...
-
-    root.destroy()  # Закрити головне вікно Tkinter
+    root.destroy()  
 
 task_queue = queue.Queue()
 
@@ -34,9 +29,9 @@ def main_thread():
 
 def process_queue():
     while True:
-        task = task_queue.get()  # Отримати завдання з черги
-        task()  # Викликати функцію, що містить запит
-        task_queue.task_done()  # Позначити завдання як виконане
+        task = task_queue.get()  
+        task()  
+        task_queue.task_done()  #
 
 
 #Тестовая функция формирования запросов
@@ -1124,7 +1119,7 @@ if __name__ == "__main__":
     worker_thread = threading.Thread(target=process_queue)
     worker_thread.start()
 
-    # Запуск головного циклу Tkinter в основному потоці
+
     # root = ThemedTk(theme="black")
     root.protocol("WM_DELETE_WINDOW", on_closing)  # Додати обробник закриття вікна
     main_thread()
