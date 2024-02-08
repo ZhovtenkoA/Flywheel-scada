@@ -840,9 +840,9 @@ def update_time():
 def update_indicator_color(value):
     register_value = value
     if register_value >= 200 and register_value <= 500:
-        indicator.itemconfig(circle, fill="green")
+        tab4_widgets.indicator.itemconfig(tab4_widgets.circle, fill="green")
     else:
-        indicator.itemconfig(circle, fill="red")
+        tab4_widgets.indicator.itemconfig(tab4_widgets.circle, fill="red")
 
 
 # Изменение цвета индикатора PWM
@@ -850,22 +850,22 @@ def update_pwm_indicator_color(i, value):
     register_value = value
     if i == 4:
         if register_value > 1000:
-            indicator_pwm1.itemconfig(circle, fill="red")
+            tab4_widgets.indicator_pwm1.itemconfig(tab4_widgets.circle, fill="red")
         # else:
         #     indicator_pwm1.itemconfig(circle, fill="red")
     elif i == 5:
         if register_value > 1000:
-            indicator_pwm2.itemconfig(circle, fill="red")
+            tab4_widgets.indicator_pwm2.itemconfig(tab4_widgets.circle, fill="red")
         # else:
         #     indicator_pwm2.itemconfig(circle, fill="red")
     elif i == 6:
         if register_value > 1000:
-            indicator_pwm3.itemconfig(circle, fill="red")
+            tab4_widgets.indicator_pwm3.itemconfig(tab4_widgets.circle, fill="red")
         # else:
         #     indicator_pwm3.itemconfig(circle, fill="red")
     elif i == 7:
         if register_value > 1000:
-            indicator_pwm4.itemconfig(circle, fill="red")
+            tab4_widgets.indicator_pwm4.itemconfig(tab4_widgets.circle, fill="red")
         # else:
         #     indicator_pwm4.itemconfig(circle, fill="red")
 
@@ -1090,71 +1090,6 @@ tab3 = ttk.Frame(notebook)
 notebook.add(tab3, text="Test request")
 
 
-# output_30001 = Text(tab4) #ADC (I1)
-# output_30001.place(x=150, y=10, width=60, height=25)
-
-# output_30002 = Text(tab4) #ADC (I2)
-# output_30002.place(x=150, y=50, width=60, height=25)
-
-# output_30003 = Text(tab4) #ADC (I3)
-# output_30003.place(x=150, y=90, width=60, height=25)
-
-# output_30004 = Text(tab4) #ADC (I4)
-# output_30004.place(x=150, y=130, width=60, height=25)
-
-# output_30005 = Text(tab4) #PWM1
-# output_30005.place(x=350, y=10, width=60, height=25)
-
-# output_30006 = Text(tab4) #PWM2
-# output_30006.place(x=350, y=50, width=60, height=25)
-
-# output_30007 = Text(tab4) #PWM3
-# output_30007.place(x=350, y=90, width=60, height=25)
-
-# output_30008 = Text(tab4) #PWM4
-# output_30008.place(x=350, y=130, width=60, height=25)
-
-# output_30009 = Text(tab4) #RPM
-# output_30009.place(x=150, y=400, width=80, height=25)
-
-# output_30010 = Text(tab4) #freq
-# output_30010.place(x=150, y=200, width=60, height=25)
-
-# output_30011 = Text(tab4) #TRH
-# output_30011.place(x=150, y=240, width=60, height=25)
-
-# output_30012 = Text(tab4) #ADDR
-# output_30012.place(x=150, y=280, width=60, height=25)
-
-# output_30013 = Text(tab4) #VDC
-# output_30013.place(x=150, y=320, width=60, height=25)
-
-# output_30014 = Text(tab4) #ADC
-# output_30014.place(x=150, y=360, width=80, height=25)
-
-
-# output_30005_percent = Text(tab4)
-# output_30005_percent.place(x=450, y=10, width=50, height=25)
-
-# output_30006_percent = Text(tab4)
-# output_30006_percent.place(x=450, y=50, width=50, height=25)
-
-# output_30007_percent = Text(tab4)
-# output_30007_percent.place(x=450, y=90, width=50, height=25)
-
-# output_30008_percent = Text(tab4)
-# output_30008_percent.place(x=450, y=130, width=50, height=25)
-
-# accumulated_kinetic_energy_output = Text(tab4)
-# accumulated_kinetic_energy_output.place(x=150, y=440, width=80, height=25)
-
-# kW_power_output = Text(tab4)
-# kW_power_output.place(x=350, y=320, width=120, height=25)
-
-# P_output = Text(tab4)
-# P_output.place(x=150, y=480, width=80, height=25)
-
-
 window_width = 1024
 window_height = 720
 screen_width = root.winfo_screenwidth()
@@ -1169,354 +1104,6 @@ def auto_scroll():
     tab1_widgets.holding_output.after(100, auto_scroll)
 
 
-# start_button = Button(
-#     tab4,
-#     text="Пуск",
-#     command=start_reading,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# start_button.pack()
-
-# stop_button = Button(
-#     tab4,
-#     text="Стоп",
-#     command=stop_reading,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# start_button.pack()
-
-
-# Кнопки управления PWM (разгон, торможение, стоп)
-# acceleration_button = Button(
-#     tab4,
-#     text="Разгон",
-#     command=acceleration,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# acceleration_button.pack()
-# slowdown_button = Button(
-#     tab4,
-#     text="Замедление",
-#     command=slowdown,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# slowdown_button.pack()
-# shutdown_button = Button(
-#     tab4,
-#     text="Остановка",
-#     command=shutdown,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# shutdown_button.pack()
-
-# Кнопки управления Trashhold
-# trh_plus_button = Button(
-#     tab4,
-#     text="+",
-#     command=trh_plus,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# trh_plus_button.pack()
-# trh_plus_button.place(x=230, y=240, width=40, height=25)
-# trh_minus_button = Button(
-#     tab4,
-#     text="-",
-#     command=trh_minus,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# trh_minus_button.pack()
-# trh_minus_button.place(x=280, y=240, width=40, height=25)
-# value_trh_label = Label(
-#     tab4,
-#     text="Новый TRH",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_trh_label.place(x=340, y=240)
-# value_trh_entry = Entry(tab4)
-# value_trh_entry.place(x=430, y=240, width=60, height=25)
-# write_trh_button = Button(
-#     tab4,
-#     text="Отправить",
-#     command=trh_write,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# write_trh_button.pack()
-# write_trh_button.place(x=520, y=240, width=100, height=25)
-
-# Кнока расчета накопленной кинетической єнергии
-# accumulated_kinetic_energy_label = Label(
-#     tab4,
-#     text="Момент иннерции",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# accumulated_kinetic_energy_label.place(x=300, y=440)
-# inertia_value_entry = Entry(tab4)
-# inertia_value_entry.place(x=430, y=440, width=60, height=25)
-# inertia_value_entry.insert(0, "0.3")
-
-# write_inertia_value_button = Button(
-#     tab4,
-#     text="Отправить",
-#     command=write_moment_of_inertia,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# write_inertia_value_button.pack()
-# write_inertia_value_button.place(x=520, y=440, width=100, height=25)
-
-
-# Кнока расчета киловатт*ч
-# kW_power_button = Button(
-#     tab4,
-#     text="Рассчет W*h",
-#     command=start_counting_w_h,
-#     font=("Arial", 10, "bold"),
-#     foreground="black",
-# )
-# kW_power_button.pack()
-# kW_power_button.place(x=480, y=320, width=100, height=25)
-
-
-# value_30001_label = Label(
-#     tab4,
-#     text="ADC(I1)",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30001_label.place(x=10, y=10)
-# value_30002_label = Label(
-#     tab4,
-#     text="ADC(I2)",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30002_label.place(x=10, y=50)
-# value_30003_label = Label(
-#     tab4,
-#     text="ADC(I3)",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30003_label.place(x=10, y=90)
-# value_30004_label = Label(
-#     tab4,
-#     text="ADC(I4)",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30004_label.place(x=10, y=130)
-# value_30005_label = Label(
-#     tab4,
-#     text="PWM1",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30005_label.place(x=250, y=10)
-# value_30006_label = Label(
-#     tab4,
-#     text="PWM2",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30006_label.place(x=250, y=50)
-# value_30007_label = Label(
-#     tab4,
-#     text="PWM3",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30007_label.place(x=250, y=90)
-# value_30008_label = Label(
-#     tab4,
-#     text="PWM4",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30008_label.place(x=250, y=130)
-# value_30009_label = Label(
-#     tab4,
-#     text="RPM",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30009_label.place(x=10, y=400)
-# value_30010_label = Label(
-#     tab4,
-#     text="Frequency",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30010_label.place(x=10, y=200)
-# value_30011_label = Label(
-#     tab4,
-#     text="Trashold",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30011_label.place(x=10, y=240)
-# value_30012_label = Label(
-#     tab4,
-#     text="ADDR",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30012_label.place(x=10, y=280)
-# value_30013_label = Label(
-#     tab4,
-#     text="Vdc",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30013_label.place(x=10, y=320)
-# value_30014_label = Label(
-#     tab4,
-#     text="Adc",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_30014_label.place(x=10, y=360)
-
-# accumulated_kinetic_energy_output_label = Label(
-#     tab4,
-#     text="Energy",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# accumulated_kinetic_energy_output_label.place(x=10, y=440)
-
-# power_label = Label(
-#     tab4,
-#     text="Power",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# power_label.place(x=250, y=320)
-
-
-# P_output_label = Label(
-#     tab4,
-#     text="P",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# P_output_label.place(x=10, y=480)
-
-
-# time_label = Label(
-#     tab4, font=("Arial", 10, "bold"), foreground="white", background="#424242"
-# )
-# time_label.place(x=950, y=10)
-# time_label_text = Label(
-#     tab4,
-#     text="Current time:",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# time_label_text.place(x=860, y=10)
-
-indicator = Canvas(
-    tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
-)
-indicator.pack()
-indicator.place(x=120, y=242)
-
-indicator_pwm1 = Canvas(
-    tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
-)
-indicator_pwm1.pack()
-indicator_pwm1.place(x=420, y=10)
-
-indicator_pwm2 = Canvas(
-    tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
-)
-indicator_pwm2.pack()
-indicator_pwm2.place(x=420, y=50)
-
-indicator_pwm3 = Canvas(
-    tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
-)
-indicator_pwm3.pack()
-indicator_pwm3.place(x=420, y=90)
-
-indicator_pwm4 = Canvas(
-    tab4, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
-)
-indicator_pwm4.pack()
-indicator_pwm4.place(x=420, y=130)
-
-
-center_x = 10
-center_y = 10
-radius = 8
-
-circle = indicator.create_oval(
-    center_x - radius,
-    center_y - radius,
-    center_x + radius,
-    center_y + radius,
-    fill="grey",
-)
-circle_pwm1 = indicator_pwm1.create_oval(
-    center_x - radius,
-    center_y - radius,
-    center_x + radius,
-    center_y + radius,
-    fill="green",
-)
-circle_pwm2 = indicator_pwm2.create_oval(
-    center_x - radius,
-    center_y - radius,
-    center_x + radius,
-    center_y + radius,
-    fill="green",
-)
-circle_pwm3 = indicator_pwm3.create_oval(
-    center_x - radius,
-    center_y - radius,
-    center_x + radius,
-    center_y + radius,
-    fill="green",
-)
-circle_pwm4 = indicator_pwm4.create_oval(
-    center_x - radius,
-    center_y - radius,
-    center_x + radius,
-    center_y + radius,
-    fill="green",
-)
-
-# test_sliders = testbuttons(tab1)
-# test_sliders.create_widgets()
 tab1_widgets = Tab1Widget(tab1, clear_output, start_logging, stop_loging)
 tab2_widgets = Tab2Widget(tab2, write_holding)
 tab3_widgets = Tab3Widget(tab3, start_test_reading, stop_test_reading)

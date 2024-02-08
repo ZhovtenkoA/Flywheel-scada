@@ -44,6 +44,7 @@ class Tab4Widget:
     )
         self.create_labels(parent)
         self.create_inputs(parent)
+        self.create_indicators(parent)
 
     def create_output(self, parent):
 
@@ -412,4 +413,75 @@ class Tab4Widget:
         self.inertia_value_entry.place(x=430, y=440, width=60, height=25)
         self.inertia_value_entry.insert(0, "0.3")
 
+    def create_indicators(self, parent):
 
+        indicator = Canvas(
+            parent, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
+        )
+        indicator.pack()
+        indicator.place(x=120, y=242)
+
+        indicator_pwm1 = Canvas(
+            parent, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
+        )
+        indicator_pwm1.pack()
+        indicator_pwm1.place(x=420, y=10)
+
+        indicator_pwm2 = Canvas(
+            parent, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
+        )
+        indicator_pwm2.pack()
+        indicator_pwm2.place(x=420, y=50)
+
+        indicator_pwm3 = Canvas(
+            parent, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
+        )
+        indicator_pwm3.pack()
+        indicator_pwm3.place(x=420, y=90)
+
+        indicator_pwm4 = Canvas(
+            parent, width=20, height=20, borderwidth=0, highlightthickness=0, background="#424242"
+        )
+        indicator_pwm4.pack()
+        indicator_pwm4.place(x=420, y=130)
+
+
+        center_x = 10
+        center_y = 10
+        radius = 8
+
+        circle = indicator.create_oval(
+            center_x - radius,
+            center_y - radius,
+            center_x + radius,
+            center_y + radius,
+            fill="grey",
+        )
+        circle_pwm1 = indicator_pwm1.create_oval(
+            center_x - radius,
+            center_y - radius,
+            center_x + radius,
+            center_y + radius,
+            fill="green",
+        )
+        circle_pwm2 = indicator_pwm2.create_oval(
+            center_x - radius,
+            center_y - radius,
+            center_x + radius,
+            center_y + radius,
+            fill="green",
+        )
+        circle_pwm3 = indicator_pwm3.create_oval(
+            center_x - radius,
+            center_y - radius,
+            center_x + radius,
+            center_y + radius,
+            fill="green",
+        )
+        circle_pwm4 = indicator_pwm4.create_oval(
+            center_x - radius,
+            center_y - radius,
+            center_x + radius,
+            center_y + radius,
+            fill="green",
+        )
