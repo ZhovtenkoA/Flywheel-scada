@@ -2,6 +2,7 @@ from tkinter import *
 
 # Виджеты для вкладки с функционалом записи отдельных Holding registers
 
+
 class Tab2Widget:
     def __init__(self, parent, write_func):
         self.write_func = write_func

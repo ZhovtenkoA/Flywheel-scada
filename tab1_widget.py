@@ -2,6 +2,7 @@ from tkinter import *
 
 # Виджеты для вкладки с функционалом чтения отдельных Holding registers
 
+
 class Tab1Widget:
     def __init__(self, parent, clear_func, start_func, stop_func):
         self.clear_func = clear_func
@@ -49,8 +50,6 @@ class Tab1Widget:
         )
         self.clear_button.pack()
 
-
-
     def create_labels(self, parent):
 
         self.starting_adress_label = Label(
@@ -71,13 +70,7 @@ class Tab1Widget:
         )
         self.numbers_to_read_label.place(x=10, y=40)
 
-
     def create_inputs(self, parent):
-        self.register_address_entry = Entry(parent)
-        self.register_address_entry.place(x=200, y=10)
-        self.value_entry = Entry(parent)
-        self.value_entry.place(x=200, y=40)
-
         self.starting_adress_entry = Entry(parent)
         self.starting_adress_entry.place(x=200, y=10)
         self.numbers_to_read_entry = Entry(parent)

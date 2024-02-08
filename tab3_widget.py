@@ -1,13 +1,13 @@
 from tkinter import Text, Button, BOTH
 
-# Виджеты для вкладки с тестовыми запросами 
+# Виджеты для вкладки с тестовыми запросами
+
 
 class Tab3Widget:
     def __init__(self, parent, start_test_func, end_test_func):
         self.start_test_func = start_test_func
         self.end_test_func = end_test_func
         self.create_test_buttons_and_output(parent, start_test_func, end_test_func)
-
 
     def create_test_buttons_and_output(self, parent, start_test_func, end_test_func):
         self.output_test = Text(parent)
@@ -30,4 +30,3 @@ class Tab3Widget:
             foreground="black",
         )
         self.stop_button_test.pack()
-

@@ -1,6 +1,4 @@
-port = (
-    "/dev/ttyUSB0"  # Порт, к которому подключено устройство
-)
+port = "/dev/ttyUSB0"  # Порт, к которому подключено устройство
 baudrate = 230400  # Скорость передачи данных
 parity = "N"  # Четность: 'N' - нет, 'E' - четная, 'O' - нечетная
 stopbits = 1  # Количество стоп-битов
@@ -10,7 +8,6 @@ timeout = 2
 
 power_accumulated = 0
 counting_in_progress = False
-
 
 
 is_reading = False
