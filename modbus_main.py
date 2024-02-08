@@ -10,6 +10,7 @@ from secondary_functions import *
 from test_scroll_button import *
 from tab3_widget import *
 from tab2_widget import *
+from tab1_widget import *
 import time
 
 
@@ -68,8 +69,8 @@ def read_holding():
     if not is_logging:
         return
  
-    register_address = int(starting_adress_entry.get())
-    numbers_to_read = int(numbers_to_read_entry.get())
+    register_address = int(tab1_widgets.starting_adress_entry.get())
+    numbers_to_read = int(tab1_widgets.numbers_to_read_entry.get())
     
     try:
         ser = serial.Serial(
@@ -104,7 +105,7 @@ def read_holding():
                     data_index += 2
                 register_type = "Input Register"
                 for i in range(numbers_to_read):
-                    output.insert(
+                    tab1_widgets.holding_output.insert(
                         END,
                         f"[{current_time}] {register_type} -  Register {register_address + i} - value {registers[i]}\n",
                     )
@@ -113,26 +114,23 @@ def read_holding():
                     f"[{current_time}] Ошибка получения ответа: {e}"
                 )
                 print(error_message)
-                output.insert(END, error_message + "\n")
+                tab1_widgets.holding_output.insert(END, error_message + "\n")
         except Exception as e:
             error_message = f"[{current_time}]Ошибка отправки запроса: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
             error_message = f"[{current_time}]Ошибка отправки запроса: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
     if is_logging:
         root.after(1000, read_holding)
  
 
 #Запись значения в определенный регистр
 def write_holding():
-
     register_address = int(tab2_widgets.register_address_entry.get())
     value = int(tab2_widgets.value_entry.get())
-    print(register_address)
-    print('write')
     try:
         ser = serial.Serial(
         port=port,
@@ -161,17 +159,17 @@ def write_holding():
             crc_value = crc16(request)
             request += crc_value.to_bytes(2, byteorder="big")
             ser.write(request)
-            output.insert(
+            tab1_widgets.holding_output.insert(
                 END,
                 f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",)
         except Exception as e:
             error_message = f"[{current_time}] Ошибка отправки запроса на запись: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"[{current_time}] Ошибка отправки запроса на запись: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
 
 #Чтение регистров с выводом на основной экран
@@ -279,19 +277,19 @@ def read_holding_30001_30014():
                 else:
                     error_message = f"[{current_time}]Ошибка контрольной суммы в ответе"
                     print(error_message)
-                    output.insert(END, error_message + "\n")
+                    tab1_widgets.holding_output.output.insert(END, error_message + "\n")
             except Exception as e:
                 error_message = f"[{current_time}] Ошибка получения ответа "
                 print(error_message)
-                output.insert(END, error_message + "\n")
+                tab1_widgets.holding_output.insert(END, error_message + "\n")
         except Exception as e:
             error_message = f"[{current_time}] Ошибка получения ответа "
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f" Ошибка отправки запроса на чтение: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
     if is_reading:
         root.after(1000, read_holding_30001_30014)
@@ -372,23 +370,23 @@ def acceleration():
                                 f"[{current_time}] Ошибка записи: {e}"
                             )
                             print(error_message)
-                            output.insert(END, error_message + "\n")
+                            tab1_widgets.holding_output.insert(END, error_message + "\n")
                     except Exception as e:
                         error_message = f"Ошибка чтения: {e}"
                         print(error_message)
-                        output.insert(END, error_message + "\n")
+                        tab1_widgets.holding_output.insert(END, error_message + "\n")
             except Exception as e:
                 error_message = f"[{current_time}]Ошибка получения ответа: {e}"
                 print(error_message)
-                output.insert(END, error_message + "\n")
+                tab1_widgets.holding_output.insert(END, error_message + "\n")
         except Exception as e:
                 error_message = f"[{current_time}]Ошибка получения ответа: {e}"
                 print(error_message)
-                output.insert(END, error_message + "\n")
+                tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"[{current_time}] Ошибка отправки запроса на чтение: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
  
 def slowdown():
@@ -464,23 +462,23 @@ def slowdown():
                                 f"[{current_time}] Error writing to Holding Register: {e}"
                             )
                             print(error_message)
-                            output.insert(END, error_message + "\n")
+                            tab1_widgets.holding_output.insert(END, error_message + "\n")
                     except Exception as e:
                         error_message = f"Error reading Modbus RTU: {e}"
                         print(error_message)
-                        output.insert(END, error_message + "\n")
+                        tab1_widgets.holding_output.insert(END, error_message + "\n")
             except Exception as e:
                     error_message = f"Error reading Modbus RTU: {e}"
                     print(error_message)
-                    output.insert(END, error_message + "\n")
+                    tab1_widgets.holding_output.insert(END, error_message + "\n")
         except Exception as e:
             error_message = f"[{current_time}]Error reading input Register: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"Error reading modbus rtu: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
  
 def shutdown():
@@ -515,18 +513,18 @@ def shutdown():
             crc_value = crc16(request)
             request += crc_value.to_bytes(2, byteorder="big")
             ser.write(request)
-            output.insert(
+            tab1_widgets.holding_output.insert(
                 END,
                 f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
             )
         except Exception as e:
             error_message = f"[{current_time}] Error writing to Holding Register: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"[{current_time}] Error writing to Holding Register: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
  
  
@@ -605,24 +603,24 @@ def trh_plus():
                                 f"[{current_time}] Error writing to Holding Register: {e}"
                             )
                             print(error_message)
-                            output.insert(END, error_message + "\n")
+                            tab1_widgets.holding_output.insert(END, error_message + "\n")
                     except Exception as e:
                         error_message = f"Error reading Modbus RTU: {e}"
                         print(error_message)
-                        output.insert(END, error_message + "\n")
+                        tab1_widgets.holding_output.insert(END, error_message + "\n")
             except Exception as e:
                 error_message = f"[{current_time}]Error reading input Register: {e}"
                 print(error_message)
-                output.insert(END, error_message + "\n")
+                tab1_widgets.holding_output.insert(END, error_message + "\n")
 
         except Exception as e:
             error_message = f"[{current_time}]Error reading input Register: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"Error reading modbus rtu: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
  
 def trh_minus():
@@ -699,23 +697,23 @@ def trh_minus():
                                 f"[{current_time}] Error writing to Holding Register: {e}"
                             )
                             print(error_message)
-                            output.insert(END, error_message + "\n")
+                            tab1_widgets.holding_output.insert(END, error_message + "\n")
                     except Exception as e:
                         error_message = f"Error reading Modbus RTU: {e}"
                         print(error_message)
-                        output.insert(END, error_message + "\n")
+                        tab1_widgets.holding_output.insert(END, error_message + "\n")
             except Exception as e:
                 error_message = f"[{current_time}]Error reading input Register: {e}"
                 print(error_message)
-                output.insert(END, error_message + "\n")
+                tab1_widgets.holding_output.insert(END, error_message + "\n")
         except Exception as e:
             error_message = f"[{current_time}]Error reading input Register: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"Error reading modbus rtu: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
  
 def trh_write():
@@ -752,18 +750,18 @@ def trh_write():
                 crc_value = crc16(request)
                 request += crc_value.to_bytes(2, byteorder="big")
                 ser.write(request)
-                output.insert(
+                tab1_widgets.holding_output.insert(
                     END,
                     f"[{current_time}] Successfully written to Holding Register {register_address} - value {value}\n",
                 )
             except Exception as e:
                 error_message = f"[{current_time}] Error writing to Holding Register: {e}"
                 print(error_message)
-                output.insert(END, error_message + "\n")
+                tab1_widgets.holding_output.insert(END, error_message + "\n")
         except Exception as e:
             error_message = f"[{current_time}] Error writing to Holding Register: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
 
  
  
@@ -810,7 +808,7 @@ def stop_test_reading():
 
 #Очистка поля вывода
 def clear_output():
-    output.delete(1.0, END)
+    tab1_widgets.holding_output.delete(1.0, END)
  
 
 #Запись момента иннерции
@@ -931,7 +929,7 @@ def make_W_h():
     except Exception as e:
         error_message = f"Error reading Modbus RTU: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
     if counting_in_progress:
         root.after(5000, make_W_h)
@@ -1007,58 +1005,58 @@ def write_time():
         except serial.SerialException as e:
             error_message = f"[{current_time}] Serial port error: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
 
         except Exception as e:
             error_message = f"[{current_time}] Error writing time: {e}"
             print(error_message)
-            output.insert(END, error_message + "\n")
+            tab1_widgets.holding_output.insert(END, error_message + "\n")
     except serial.SerialException as e:
         error_message = f"Serial port error: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
     except Exception as e:
         error_message = f"Error opening serial port: {e}"
         print(error_message)
-        output.insert(END, error_message + "\n")
+        tab1_widgets.holding_output.insert(END, error_message + "\n")
 
 
 
 def resize_window(event):
     window_width = root.winfo_width()
     window_height = root.winfo_height()
-    output.place(x=10, y=70, width=window_width - 30, height=window_height - 200)
+    tab1_widgets.holding_output.place(x=10, y=70, width=window_width - 30, height=window_height - 200)
     tab3_widgets.output_test.place(x=10, y=70, width=window_width - 30, height=window_height - 200)
  
     if root.attributes("-fullscreen"):
-        clear_button.place(x=10, y=window_height - 130, width=100)
+        tab1_widgets.clear_button.place(x=10, y=window_height - 130, width=100)
         start_button.place(x=120, y=window_height - 130, width=100)
         stop_button.place(x=230, y=window_height - 130, width=100)
         tab2_widgets.write_button.place(x=10, y=window_height - 130, width=100)
         tab3_widgets.start_button_test.place(x=100, y=window_height - 130, width=120)
         tab3_widgets.stop_button_test.place(x=230, y=window_height - 130, width=100)
-        start_loging_button.place(x=120, y=window_height - 130, width=100)
-        stop_loging_button.place(x=230, y=window_height - 130, width=100)
+        tab1_widgets.start_loging_button.place(x=120, y=window_height - 130, width=100)
+        tab1_widgets.stop_loging_button.place(x=230, y=window_height - 130, width=100)
         acceleration_button.place(x=340, y=window_height - 130, width=100)
         slowdown_button.place(x=450, y=window_height - 130, width=100)
         shutdown_button.place(x=560, y=window_height - 130, width=100)
 
     else:
-        clear_button.place(x=10, y=window_height - 70, width=100)
+        tab1_widgets.clear_button.place(x=10, y=window_height - 70, width=100)
         start_button.place(x=120, y=window_height - 70, width=100)
         stop_button.place(x=230, y=window_height - 70, width=100)
         tab2_widgets.write_button.place(x=10, y=window_height - 70, width=100)
         tab3_widgets.start_button_test.place(x=100, y=window_height - 70, width=120)
         tab3_widgets.stop_button_test.place(x=230, y=window_height - 70, width=100)
-        start_loging_button.place(x=120, y=window_height - 70, width=100)
-        stop_loging_button.place(x=230, y=window_height - 70, width=100)
+        tab1_widgets.start_loging_button.place(x=120, y=window_height - 70, width=100)
+        tab1_widgets.stop_loging_button.place(x=230, y=window_height - 70, width=100)
         acceleration_button.place(x=340, y=window_height - 70, width=100)
         slowdown_button.place(x=450, y=window_height - 70, width=100)
         shutdown_button.place(x=560, y=window_height - 70, width=100)
 
  
-    scrollbar.place(x=window_width - 20, y=70, height=window_height - 200)
+    tab1_widgets.scrollbar.place(x=window_width - 20, y=70, height=window_height - 200)
  
  
 root = ThemedTk(theme="black")
@@ -1079,8 +1077,8 @@ notebook.add(tab2, text="Write Holding registers")
 tab3 = ttk.Frame(notebook)
 notebook.add(tab3, text="Test request")
 
-output = Text(tab1)
-output.pack(fill=BOTH, expand=True)
+# output = Text(tab1)
+# output.pack(fill=BOTH, expand=True)
  
 output_30001 = Text(tab4) #ADC (I1)
 output_30001.place(x=150, y=10, width=60, height=25)
@@ -1155,57 +1153,57 @@ x = int((screen_width - window_width) / 2)
 y = int((screen_height - window_height) / 2)
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
  
-scrollbar = Scrollbar(tab1, command=output.yview)
-scrollbar.pack(side=RIGHT, fill=Y)
-output.configure(yscrollcommand=scrollbar.set)
+# scrollbar = Scrollbar(tab1, command=output.yview)
+# scrollbar.pack(side=RIGHT, fill=Y)
+# output.configure(yscrollcommand=scrollbar.set)
  
  
 def auto_scroll():
-    output.see("end")
-    output.after(100, auto_scroll)
+    tab1_widgets.holding_output.see("end")
+    tab1_widgets.holding_output.after(100, auto_scroll)
  
 
-starting_adress_label = Label(
-    tab1,
-    text="Стартовый адрес",
-    font=("Arial", 10, "bold"),
-    foreground="white",
-    background="#424242",
-)
-starting_adress_label.place(x=10, y=10)
+# starting_adress_label = Label(
+#     tab1,
+#     text="Стартовый адрес",
+#     font=("Arial", 10, "bold"),
+#     foreground="white",
+#     background="#424242",
+# )
+# starting_adress_label.place(x=10, y=10)
  
-starting_adress_entry = Entry(tab1)
-starting_adress_entry.place(x=200, y=10)
+# starting_adress_entry = Entry(tab1)
+# starting_adress_entry.place(x=200, y=10)
  
-numbers_to_read_label = Label(
-    tab1,
-    text="Количество регистров",
-    font=("Arial", 10, "bold"),
-    foreground="white",
-    background="#424242",
-)
-numbers_to_read_label.place(x=10, y=40)
+# numbers_to_read_label = Label(
+#     tab1,
+#     text="Количество регистров",
+#     font=("Arial", 10, "bold"),
+#     foreground="white",
+#     background="#424242",
+# )
+# numbers_to_read_label.place(x=10, y=40)
  
-numbers_to_read_entry = Entry(tab1)
-numbers_to_read_entry.place(x=200, y=40)
+# numbers_to_read_entry = Entry(tab1)
+# numbers_to_read_entry.place(x=200, y=40)
  
-start_loging_button = Button(
-    tab1,
-    text="Пуск",
-    command=start_logging,
-    font=("Arial", 10, "bold"),
-    foreground="black",
-)
-start_loging_button.pack()
+# start_loging_button = Button(
+#     tab1,
+#     text="Пуск",
+#     command=start_logging,
+#     font=("Arial", 10, "bold"),
+#     foreground="black",
+# )
+# start_loging_button.pack()
  
-stop_loging_button = Button(
-    tab1,
-    text="Стоп",
-    command=stop_loging,
-    font=("Arial", 10, "bold"),
-    foreground="black",
-)
-stop_loging_button.pack()
+# stop_loging_button = Button(
+#     tab1,
+#     text="Стоп",
+#     command=stop_loging,
+#     font=("Arial", 10, "bold"),
+#     foreground="black",
+# )
+# stop_loging_button.pack()
  
 start_button = Button(
     tab4,
@@ -1325,53 +1323,22 @@ kW_power_button = Button(
 kW_power_button.pack()
 kW_power_button.place(x=480, y=320, width=100, height=25)
  
-clear_button = Button(
-    tab1,
-    text="Очистить",
-    command=clear_output,
-    font=("Arial", 10, "bold"),
-    foreground="black",
-)
-clear_button.pack()
-
-start_button.pack()
-
-start_button.pack()
- 
-# register_address_label = Label(
-#     tab2,
-#     text="Адрес регистра",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# register_address_label.place(x=10, y=10)
- 
-# register_address_entry = Entry(tab2)
-# register_address_entry.place(x=200, y=10)
- 
-# value_label = Label(
-#     tab2,
-#     text="Значение",
-#     font=("Arial", 10, "bold"),
-#     foreground="white",
-#     background="#424242",
-# )
-# value_label.place(x=10, y=40)
- 
-# value_entry = Entry(tab2)
-# value_entry.place(x=200, y=40)
- 
-# write_button = Button(
-#     tab2,
-#     text="Отправить",
-#     command=write_holding,
+# clear_button = Button(
+#     tab1,
+#     text="Очистить",
+#     command=clear_output,
 #     font=("Arial", 10, "bold"),
 #     foreground="black",
 # )
-# write_button.pack()
- 
+# clear_button.pack()
 
+
+
+
+# start_button.pack()
+
+# start_button.pack()
+ 
 value_30001_label = Label(
     tab4,
     text="ADC(I1)",
@@ -1552,9 +1519,10 @@ circle_pwm4= indicator_pwm4.create_oval(center_x - radius, center_y - radius, ce
 
 # test_sliders = testbuttons(tab1)
 # test_sliders.create_widgets()
+tab1_widgets = Tab1Widget(tab1, clear_output, start_logging, stop_loging)
 tab2_widgets = Tab2Widget(tab2, write_holding)
-tab3_widgets = Tab3Widget(tab3)
-create_test_buttons_and_output(tab3_widgets, start_test_reading, stop_test_reading)
+tab3_widgets = Tab3Widget(tab3, start_test_reading, stop_test_reading)
+
 
 
 auto_scroll()
