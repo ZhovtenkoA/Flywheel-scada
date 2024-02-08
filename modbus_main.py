@@ -7,6 +7,8 @@ from ttkthemes import ThemedTk
 from connection_parameters import *
 from serial_functions import *
 from secondary_functions import *
+from test_scroll_button import *
+from tab3_widget import *
 import time
 
 
@@ -45,15 +47,15 @@ def read_holding_test():
             print("отпрвка")
             ser.write(request)
             print("долбим")
-            output_test.insert(END, f"[{current_time}] долбим долбим долбим\n")
+            tab3_widgets.output_test.insert(END, f"[{current_time}] долбим долбим долбим\n")
         except Exception as e:
             error_message = f"[{current_time}]Ошибка тестовой отправки запросов: {e}"
             print(error_message)
-            output_test.insert(END, error_message + "\n")
+            tab3_widgets.output_test.insert(END, error_message + "\n")
     except Exception as e:
         error_message = f"[{current_time}]Ошибка тестовой отправки запросов: {e}"
         print(error_message)
-        output_test.insert(END, error_message + "\n")
+        tab3_widgets.output_test.insert(END, error_message + "\n")
     
     if is_testing:
         root.after(1000, read_holding_test)
@@ -792,6 +794,7 @@ def stop_reading():
 
 #Функции управления тестовыми запросами
 def start_test_reading():
+    print("Starting test requests...")
     global is_testing
     is_testing = True
     read_holding_test()
@@ -799,6 +802,7 @@ def start_test_reading():
 def stop_test_reading():
     global is_testing
     is_testing = False
+
  
 
 #Очистка поля вывода
@@ -1022,15 +1026,15 @@ def resize_window(event):
     window_width = root.winfo_width()
     window_height = root.winfo_height()
     output.place(x=10, y=70, width=window_width - 30, height=window_height - 200)
-    output_test.place(x=10, y=70, width=window_width - 30, height=window_height - 200)
+    tab3_widgets.output_test.place(x=10, y=70, width=window_width - 30, height=window_height - 200)
  
     if root.attributes("-fullscreen"):
         clear_button.place(x=10, y=window_height - 130, width=100)
         start_button.place(x=120, y=window_height - 130, width=100)
         stop_button.place(x=230, y=window_height - 130, width=100)
         write_button.place(x=10, y=window_height - 130, width=100)
-        start_button_test.place(x=100, y=window_height - 130, width=120)
-        stop_button_test.place(x=230, y=window_height - 130, width=100)
+        tab3_widgets.start_button_test.place(x=100, y=window_height - 130, width=120)
+        tab3_widgets.stop_button_test.place(x=230, y=window_height - 130, width=100)
         start_loging_button.place(x=120, y=window_height - 130, width=100)
         stop_loging_button.place(x=230, y=window_height - 130, width=100)
         acceleration_button.place(x=340, y=window_height - 130, width=100)
@@ -1042,8 +1046,8 @@ def resize_window(event):
         start_button.place(x=120, y=window_height - 70, width=100)
         stop_button.place(x=230, y=window_height - 70, width=100)
         write_button.place(x=10, y=window_height - 70, width=100)
-        start_button_test.place(x=100, y=window_height - 70, width=120)
-        stop_button_test.place(x=230, y=window_height - 70, width=100)
+        tab3_widgets.start_button_test.place(x=100, y=window_height - 70, width=120)
+        tab3_widgets.stop_button_test.place(x=230, y=window_height - 70, width=100)
         start_loging_button.place(x=120, y=window_height - 70, width=100)
         stop_loging_button.place(x=230, y=window_height - 70, width=100)
         acceleration_button.place(x=340, y=window_height - 70, width=100)
@@ -1075,9 +1079,6 @@ notebook.add(tab3, text="Test request")
  
 output = Text(tab1)
 output.pack(fill=BOTH, expand=True)
- 
-output_test = Text(tab3)
-output_test.pack(fill=BOTH, expand=True)
  
 output_30001 = Text(tab4) #ADC (I1)
 output_30001.place(x=150, y=10, width=60, height=25)
@@ -1330,23 +1331,9 @@ clear_button = Button(
     foreground="black",
 )
 clear_button.pack()
- 
-start_button_test = Button(
-    tab3,
-    text="Пуск для теста",
-    command=start_test_reading,
-    font=("Arial", 10, "bold"),
-    foreground="black",
-)
+
 start_button.pack()
- 
-stop_button_test = Button(
-    tab3,
-    text="Стоп тест",
-    command=stop_test_reading,
-    font=("Arial", 10, "bold"),
-    foreground="black",
-)
+
 start_button.pack()
  
 register_address_label = Label(
@@ -1560,6 +1547,11 @@ circle_pwm1= indicator_pwm1.create_oval(center_x - radius, center_y - radius, ce
 circle_pwm2= indicator_pwm2.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="green")
 circle_pwm3= indicator_pwm3.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="green")
 circle_pwm4= indicator_pwm4.create_oval(center_x - radius, center_y - radius, center_x + radius, center_y + radius, fill="green")
+
+# test_sliders = testbuttons(tab1)
+# test_sliders.create_widgets()
+tab3_widgets = Tab3Widget(tab3)
+create_test_buttons_and_output(tab3_widgets, start_test_reading, stop_test_reading)
 
 auto_scroll()
 root.bind("<Configure>", resize_window)
