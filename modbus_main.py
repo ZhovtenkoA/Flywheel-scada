@@ -4,6 +4,7 @@ import serial
 from tkinter import ttk
 import crcmod.predefined
 from ttkthemes import ThemedTk
+
 from connection_parameters import *
 from serial_functions import *
 from secondary_functions import *
@@ -1118,7 +1119,7 @@ tab4_widgets = Tab4Widget(tab4, start_reading,
         write_moment_of_inertia,
         start_counting_w_h)
 
-but = TestButtons(tab4)
+sliders = TestButtons(tab4)
 
 
 auto_scroll()
