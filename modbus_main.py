@@ -9,6 +9,7 @@ from serial_functions import *
 from secondary_functions import *
 from test_scroll_button import *
 from tab3_widget import *
+from tab2_widget import *
 import time
 
 
@@ -128,8 +129,10 @@ def read_holding():
 #Запись значения в определенный регистр
 def write_holding():
 
-    register_address = int(register_address_entry.get())
-    value = int(value_entry.get())
+    register_address = int(tab2_widgets.register_address_entry.get())
+    value = int(tab2_widgets.value_entry.get())
+    print(register_address)
+    print('write')
     try:
         ser = serial.Serial(
         port=port,
@@ -1032,7 +1035,7 @@ def resize_window(event):
         clear_button.place(x=10, y=window_height - 130, width=100)
         start_button.place(x=120, y=window_height - 130, width=100)
         stop_button.place(x=230, y=window_height - 130, width=100)
-        write_button.place(x=10, y=window_height - 130, width=100)
+        tab2_widgets.write_button.place(x=10, y=window_height - 130, width=100)
         tab3_widgets.start_button_test.place(x=100, y=window_height - 130, width=120)
         tab3_widgets.stop_button_test.place(x=230, y=window_height - 130, width=100)
         start_loging_button.place(x=120, y=window_height - 130, width=100)
@@ -1045,7 +1048,7 @@ def resize_window(event):
         clear_button.place(x=10, y=window_height - 70, width=100)
         start_button.place(x=120, y=window_height - 70, width=100)
         stop_button.place(x=230, y=window_height - 70, width=100)
-        write_button.place(x=10, y=window_height - 70, width=100)
+        tab2_widgets.write_button.place(x=10, y=window_height - 70, width=100)
         tab3_widgets.start_button_test.place(x=100, y=window_height - 70, width=120)
         tab3_widgets.stop_button_test.place(x=230, y=window_height - 70, width=100)
         start_loging_button.place(x=120, y=window_height - 70, width=100)
@@ -1075,8 +1078,7 @@ notebook.add(tab2, text="Write Holding registers")
  
 tab3 = ttk.Frame(notebook)
 notebook.add(tab3, text="Test request")
- 
- 
+
 output = Text(tab1)
 output.pack(fill=BOTH, expand=True)
  
@@ -1336,38 +1338,38 @@ start_button.pack()
 
 start_button.pack()
  
-register_address_label = Label(
-    tab2,
-    text="Адрес регистра",
-    font=("Arial", 10, "bold"),
-    foreground="white",
-    background="#424242",
-)
-register_address_label.place(x=10, y=10)
+# register_address_label = Label(
+#     tab2,
+#     text="Адрес регистра",
+#     font=("Arial", 10, "bold"),
+#     foreground="white",
+#     background="#424242",
+# )
+# register_address_label.place(x=10, y=10)
  
-register_address_entry = Entry(tab2)
-register_address_entry.place(x=200, y=10)
+# register_address_entry = Entry(tab2)
+# register_address_entry.place(x=200, y=10)
  
-value_label = Label(
-    tab2,
-    text="Значение",
-    font=("Arial", 10, "bold"),
-    foreground="white",
-    background="#424242",
-)
-value_label.place(x=10, y=40)
+# value_label = Label(
+#     tab2,
+#     text="Значение",
+#     font=("Arial", 10, "bold"),
+#     foreground="white",
+#     background="#424242",
+# )
+# value_label.place(x=10, y=40)
  
-value_entry = Entry(tab2)
-value_entry.place(x=200, y=40)
+# value_entry = Entry(tab2)
+# value_entry.place(x=200, y=40)
  
-write_button = Button(
-    tab2,
-    text="Отправить",
-    command=write_holding,
-    font=("Arial", 10, "bold"),
-    foreground="black",
-)
-write_button.pack()
+# write_button = Button(
+#     tab2,
+#     text="Отправить",
+#     command=write_holding,
+#     font=("Arial", 10, "bold"),
+#     foreground="black",
+# )
+# write_button.pack()
  
 
 value_30001_label = Label(
@@ -1550,8 +1552,10 @@ circle_pwm4= indicator_pwm4.create_oval(center_x - radius, center_y - radius, ce
 
 # test_sliders = testbuttons(tab1)
 # test_sliders.create_widgets()
+tab2_widgets = Tab2Widget(tab2, write_holding)
 tab3_widgets = Tab3Widget(tab3)
 create_test_buttons_and_output(tab3_widgets, start_test_reading, stop_test_reading)
+
 
 auto_scroll()
 root.bind("<Configure>", resize_window)

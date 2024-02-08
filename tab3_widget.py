@@ -1,5 +1,7 @@
 from tkinter import Text, Button, BOTH
 
+# Виджеты для вкладки с тестовыми запросами 
+
 class Tab3Widget:
     def __init__(self, parent):
         self.output_test = Text(parent)
