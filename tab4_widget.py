@@ -1,9 +1,12 @@
 from tkinter import *
+import tkinter as tk
 
 # Виджеты основного экрана
 
 
 class Tab4Widget:
+
+
     def __init__(
         self,
         parent,
@@ -485,3 +488,207 @@ class Tab4Widget:
             center_y + radius,
             fill="green",
         )
+
+
+class TestButtons:
+    def __init__(self, parent):
+        self.parent = parent
+        self.canvas_width = 45
+        self.canvas_height = 25
+        self.slider_diameter = 25
+        self.slider_radius = self.slider_diameter // 2
+        self.create_widgets()
+
+    def create_widgets(self):
+        #Слайдер 1
+        self.canvas = tk.Canvas(
+            self.parent, width=self.canvas_width, height=self.canvas_height, bg="#424242", highlightthickness=0
+        )
+        self.canvas.place(x=530, y=8)
+
+        self.o1 = self.canvas.create_oval(4, 4, 43, 23, fill="red")
+
+        self.canvas.bind("<B1-Motion>", self.on_drag1)
+
+        self.slider_x1 = 0
+        self.slider1 = self.canvas.create_oval(
+            self.slider_x1 + 5,
+            3,
+            self.slider_x1 + self.slider_diameter,
+            self.slider_diameter,
+            fill="gray",
+        )
+        
+        #Слайдер 2
+        self.canvas2 = tk.Canvas(
+            self.parent, width=self.canvas_width, height=self.canvas_height, bg="#424242", highlightthickness=0
+        )
+        self.canvas2.place(x=530, y=48)
+
+        self.o2 = self.canvas2.create_oval(4, 4, 43, 23, fill="red")
+
+        self.canvas2.bind("<B1-Motion>", self.on_drag2)
+
+        self.slider_x2 = 0
+        self.slider2 = self.canvas2.create_oval(
+            self.slider_x2 + 5,
+            3,
+            self.slider_x2 + self.slider_diameter,
+            self.slider_diameter,
+            fill="gray",
+        )
+
+        #Слайдер 3
+        self.canvas3 = tk.Canvas(
+            self.parent, width=self.canvas_width, height=self.canvas_height, bg="#424242", highlightthickness=0
+        )
+        self.canvas3.place(x=530, y=88)
+
+        self.o3 = self.canvas3.create_oval(4, 4, 43, 23, fill="red")
+
+        self.canvas3.bind("<B1-Motion>", self.on_drag3)
+
+        self.slider_x3 = 0
+        self.slider3 = self.canvas3.create_oval(
+            self.slider_x3 + 5,
+            3,
+            self.slider_x3 + self.slider_diameter,
+            self.slider_diameter,
+            fill="gray",
+        )
+
+        #Слайдер 4
+        self.canvas4 = tk.Canvas(
+            self.parent, width=self.canvas_width, height=self.canvas_height, bg="#424242", highlightthickness=0
+        )
+        self.canvas4.place(x=530, y=128)
+
+        self.o4 = self.canvas4.create_oval(4, 4, 43, 23, fill="red")
+
+        self.canvas4.bind("<B1-Motion>", self.on_drag4)
+
+        self.slider_x4 = 0
+        self.slider4 = self.canvas4.create_oval(
+            self.slider_x4 + 5,
+            3,
+            self.slider_x4 + self.slider_diameter,
+            self.slider_diameter,
+            fill="gray",
+        )
+
+
+    def on_drag1(self, event):
+        slider_x1 = event.x - self.slider_radius
+        if slider_x1 < 0:
+            slider_x1 = 0
+        elif slider_x1 > self.canvas_width - self.slider_diameter:
+            slider_x1 = self.canvas_width - self.slider_diameter
+        self.canvas.coords(
+            self.slider1,
+            slider_x1 + 5,
+            3,
+            slider_x1 + self.slider_diameter,
+            self.slider_diameter,
+        )
+
+        if slider_x1 >= self.canvas_width - self.slider_diameter:
+            # self.button1.configure(text="Включено")
+            self.canvas.itemconfigure(self.o1, fill="green")
+        else:
+            # self.button1.configure(text="Выключено")
+            self.canvas.itemconfigure(self.o1, fill="red")
+
+    def on_release1(self):
+        if self.slider_x1 >= self.canvas_width - self.slider_diameter:
+            # self.button1.configure(text="Включено")
+            self.canvas.itemconfigure(self.o1, fill="green")
+        else:
+            # self.button1.configure(text="Выключено")
+            self.canvas.itemconfigure(self.o1, fill="red")
+
+    def on_drag2(self, event):
+        slider_x2 = event.x - self.slider_radius
+        if slider_x2 < 0:
+            slider_x2 = 0
+        elif slider_x2 > self.canvas_width - self.slider_diameter:
+            slider_x2 = self.canvas_width - self.slider_diameter
+        self.canvas2.coords(
+            self.slider2,
+            slider_x2 + 5,
+            3,
+            slider_x2 + self.slider_diameter,
+            self.slider_diameter,
+        )
+
+        if slider_x2 >= self.canvas_width - self.slider_diameter:
+            # self.button2.configure(text="Включено")
+            self.canvas2.itemconfigure(self.o2, fill="green")
+        else:
+            # self.button2.configure(text="Выключено")
+            self.canvas2.itemconfigure(self.o2, fill="red")
+
+    def on_release2(self):
+        if self.slider_x2 >= self.canvas_width - self.slider_diameter:
+            # self.button2.configure(text="Включено")
+            self.canvas2.itemconfigure(self.o2, fill="green")
+        else:
+            # self.button2.configure(text="Выключено")
+            self.canvas2.itemconfigure(self.o2, fill="red")
+
+    def on_drag3(self, event):
+            slider_x3 = event.x - self.slider_radius
+            if slider_x3 < 0:
+                slider_x3 = 0
+            elif slider_x3 > self.canvas_width - self.slider_diameter:
+                slider_x3 = self.canvas_width - self.slider_diameter
+            self.canvas3.coords(
+                self.slider3,
+                slider_x3 + 5,
+                3,
+                slider_x3 + self.slider_diameter,
+                self.slider_diameter,
+            )
+
+            if slider_x3 >= self.canvas_width - self.slider_diameter:
+                # self.button2.configure(text="Включено")
+                self.canvas3.itemconfigure(self.o3, fill="green")
+            else:
+                # self.button2.configure(text="Выключено")
+                self.canvas3.itemconfigure(self.o3, fill="red")
+
+    def on_release3(self):
+        if self.slider_x3 >= self.canvas_width - self.slider_diameter:
+            # self.button2.configure(text="Включено")
+            self.canvas3.itemconfigure(self.o3, fill="green")
+        else:
+            # self.button2.configure(text="Выключено")
+            self.canvas3.itemconfigure(self.o3, fill="red")
+
+    def on_drag4(self, event):
+            slider_x4 = event.x - self.slider_radius
+            if slider_x4 < 0:
+                slider_x4 = 0
+            elif slider_x4 > self.canvas_width - self.slider_diameter:
+                slider_x4 = self.canvas_width - self.slider_diameter
+            self.canvas4.coords(
+                self.slider4,
+                slider_x4 + 5,
+                3,
+                slider_x4 + self.slider_diameter,
+                self.slider_diameter,
+            )
+
+            if slider_x4 >= self.canvas_width - self.slider_diameter:
+                # self.button2.configure(text="Включено")
+                self.canvas4.itemconfigure(self.o4, fill="green")
+            else:
+                # self.button2.configure(text="Выключено")
+                self.canvas4.itemconfigure(self.o4, fill="red")
+
+    def on_release4(self):
+        if self.slider_x4 >= self.canvas_width - self.slider_diameter:
+            # self.button2.configure(text="Включено")
+            self.canvas4.itemconfigure(self.o4, fill="green")
+        else:
+            # self.button2.configure(text="Выключено")
+            self.canvas4.itemconfigure(self.o4, fill="red")

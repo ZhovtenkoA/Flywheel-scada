@@ -7,11 +7,11 @@ from ttkthemes import ThemedTk
 from connection_parameters import *
 from serial_functions import *
 from secondary_functions import *
-from test_scroll_button import *
 from tab4_widget import *
 from tab3_widget import *
 from tab2_widget import *
 from tab1_widget import *
+
 import time
 
 
@@ -1117,6 +1117,8 @@ tab4_widgets = Tab4Widget(tab4, start_reading,
         trh_write,
         write_moment_of_inertia,
         start_counting_w_h)
+
+but = TestButtons(tab4)
 
 
 auto_scroll()
