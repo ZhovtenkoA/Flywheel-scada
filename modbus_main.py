@@ -108,6 +108,13 @@ def read_holding():
                 print(response)
                 response_data = response[:-2]
                 response_crc = response[-2:]
+                print(f"slave_id[0]: {response[0]}")
+                print(f"func number[1]: {response[1]}")
+                print(f"byte counter[2]: {response[2]}")
+                print(f"data upper[3]: {response[3]}")
+                print(f"data lower[4]: {response[4]}")
+                print(f" crc upper[5]: {response[4]}")
+                print(f"crc lower[5]: {response[4]}")
                 if check_crc(response_crc, response_data):
                     data_index = 3
                     byte_count = response[2]
