@@ -1,10 +1,10 @@
 port = "/dev/ttyUSB0"  # Порт, к которому подключено устройство
-baudrate = 230400  # Скорость передачи данных
+baudrate = 115200  # Скорость передачи данных
 parity = "N"  # Четность: 'N' - нет, 'E' - четная, 'O' - нечетная
 stopbits = 1  # Количество стоп-битов
 bytesize = 8  # Размер байта
 slave_id = 1
-function_number_for_reading = 4
+function_number_for_reading = 3
 timeout = 2
 
 power_accumulated = 0
