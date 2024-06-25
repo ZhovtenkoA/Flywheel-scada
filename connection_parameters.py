@@ -4,6 +4,7 @@ parity = "N"  # Четность: 'N' - нет, 'E' - четная, 'O' - неч
 stopbits = 1  # Количество стоп-битов
 bytesize = 8  # Размер байта
 slave_id = 1
+function_number_for_reading = 4
 timeout = 2
 
 power_accumulated = 0

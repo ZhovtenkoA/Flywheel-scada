@@ -41,7 +41,7 @@ def read_holding_test():
             request = bytearray(
                 [
                     slave_id,
-                    0x4,
+                    function_number_for_reading,
                     (register_address >> 8) & 0xFF,
                     register_address & 0xFF,
                     0x00,
@@ -49,6 +49,9 @@ def read_holding_test():
                 ]
             )
             print("отпрвка")
+            crc_v = calc_crc16_modbus(request)
+            request += crc_v
+            print(f"Request - {request}")
             ser.write(request)
             print("долбим")
             tab3_widgets.output_test.insert(
@@ -89,30 +92,41 @@ def read_holding():
             request = bytearray(
                 [
                     slave_id,
-                    0x4,
+                    function_number_for_reading,
                     (register_address >> 8) & 0xFF,
                     register_address & 0xFF,
                     0x00,
                     numbers_to_read,
                 ]
             )
+            crc_v = calc_crc16_modbus(request)
+            request += crc_v
+            print(f"Request - {request}")
             ser.write(request)
             try:
                 response = ser.read(5 + numbers_to_read * 2)
                 print(response)
-                byte_count = response[2]
-                data_index = 3
-                registers = []
-                for i in range(numbers_to_read):
-                    value = (response[data_index] << 8) + response[data_index + 1]
-                    registers.append(value)
-                    data_index += 2
-                register_type = "Input Register"
-                for i in range(numbers_to_read):
-                    tab1_widgets.holding_output.insert(
-                        END,
-                        f"[{current_time}] {register_type} -  Register {register_address + i} - value {registers[i]}\n",
-                    )
+                response_data = response[:-2]
+                response_crc = response[-2:]
+                if check_crc(response_crc, response_data):
+                    data_index = 3
+                    byte_count = response[2]
+                    data_index = 3
+                    registers = []
+                    for i in range(numbers_to_read):
+                        value = (response[data_index] << 8) + response[data_index + 1]
+                        registers.append(value)
+                        data_index += 2
+                    register_type = "Input Register"
+                    for i in range(numbers_to_read):
+                        tab1_widgets.holding_output.insert(
+                            END,
+                            f"[{current_time}] {register_type} -  Register {register_address + i} - value {registers[i]}\n",
+                        )
+                else:
+                    error_message = f"[{current_time}]Ошибка контрольной суммы в ответе"
+                    print(error_message)
+                    tab1_widgets.holding_output.insert(END, error_message + "\n")
             except Exception as e:
                 error_message = f"[{current_time}] Ошибка получения ответа: {e}"
                 print(error_message)
@@ -122,7 +136,7 @@ def read_holding():
             print(error_message)
             tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
-        error_message = f"[{current_time}]Ошибка отправки запроса: {e}"
+        error_message = f"[{current_time}]Ошибка подключения: {e}"
         print(error_message)
         tab1_widgets.holding_output.insert(END, error_message + "\n")
     if is_logging:
@@ -197,7 +211,7 @@ def read_holding_30001_30014():
             request = bytearray(
                 [
                     slave_id,
-                    0x4,
+                    function_number,
                     (register_address >> 8) & 0xFF,
                     register_address & 0xFF,
                     0x00,
@@ -293,11 +307,11 @@ def read_holding_30001_30014():
                 print(error_message)
                 tab1_widgets.holding_output.insert(END, error_message + "\n")
         except Exception as e:
-            error_message = f"[{current_time}] Ошибка получения ответа "
+            error_message = f"[{current_time}] Ошибка отправки запроса "
             print(error_message)
             tab1_widgets.holding_output.insert(END, error_message + "\n")
     except Exception as e:
-        error_message = f" Ошибка отправки запроса на чтение: {e}"
+        error_message = f" Ошибка подключения: {e}"
         print(error_message)
         tab1_widgets.holding_output.insert(END, error_message + "\n")
 
