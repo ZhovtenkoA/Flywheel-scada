@@ -211,7 +211,7 @@ def read_holding_30001_30014():
             request = bytearray(
                 [
                     slave_id,
-                    function_number,
+                    function_number_for_reading,
                     (register_address >> 8) & 0xFF,
                     register_address & 0xFF,
                     0x00,
